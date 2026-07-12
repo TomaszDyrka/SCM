@@ -160,3 +160,18 @@ def test_read_branch_success_and_failure(temp_repo):
         temp_repo.read_branch(missing_branch)
 
     assert f"Branch {missing_branch} does not exist in the repository." in str(exc_info.value)
+
+def test_read_head_input_and_saved_values_match(temp_repo):
+    temp_repo.initialize_directories()
+
+    name = "master"
+    temp_repo.update_head_path(name)
+    updated_head = temp_repo.read_head()
+
+    assert updated_head == f"ref: refs/heads/{name}"
+
+    commit_hash = "d0ba1fb9ef60b7487f40c42c22b6091327fa24e2"
+    temp_repo.update_head_hash(commit_hash)
+    updated_head = temp_repo.read_head()
+
+    assert updated_head == commit_hash

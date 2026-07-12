@@ -60,7 +60,6 @@ class Repository:
             head_file.write(content)
 
     def update_head_hash(self, commit_hash: str) -> None:
-
         with open(file=self.HEAD, mode="w") as head_file:
             head_file.write(commit_hash)
 
@@ -92,3 +91,9 @@ class Repository:
             commit_hash = head_file.read().strip()
 
         return commit_hash
+
+    def read_head(self) -> str:
+        with open(file=self.HEAD, mode="r") as head_file:
+            head_content = head_file.read()
+
+        return head_content
