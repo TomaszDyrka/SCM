@@ -1,13 +1,14 @@
 from pathlib import Path
 import hashlib
+from zlib import compress, decompress
 
 
-def compute_hash(file_content: bytes) -> str:
-    return hashlib.sha1(file_content).hexdigest()
-
+def compute_hash(content: bytes) -> str:
+    return hashlib.sha1(content).hexdigest()
 
 class Repository:
 
+    # Initialization
     def __init__(self, repository_path: Path) -> None:
         hidden_folder_name = ".scm"
 
@@ -23,3 +24,20 @@ class Repository:
         if not self.HEAD.exists():
             self.HEAD.touch()
 
+    # Writing Methods
+    def write_object(self, content: bytes) -> str:
+        # Determine paths
+        object_hash = compute_hash(content)
+        folder_name, file_name = object_hash[:2], object_hash[2:]
+        folder_path = self.objects / folder_name
+        file_path = folder_path / file_name
+
+        # Create structure
+        folder_path.mkdir(parents=False, exist_ok=True)
+
+        # Write content
+        compressed_content = compress(content)
+        with open(file=file_path, mode="wb") as object_file:
+            object_file.write(compressed_content)
+
+        return object_hash

@@ -1,4 +1,5 @@
 from src.repository.repository import compute_hash
+import zlib
 
 
 def test_initialize_directories_creates_correct_structure(temp_repo):
@@ -34,3 +35,30 @@ def test_hashing_algorithm():
     second_hash = compute_hash(b"scm")
 
     assert first_hash == second_hash
+
+def test_write_object_saves_compressed_file_in_correct_folder(temp_repo):
+    temp_repo.initialize_directories()
+
+    test_content = b"scm test content"
+
+    returned_hash = temp_repo.write_object(test_content)
+
+    expected_folder = temp_repo.objects / returned_hash[:2]
+    expected_file = expected_folder / returned_hash[2:]
+
+    assert expected_folder.is_dir()
+    assert expected_file.is_file()
+
+def test_write_objects_compressed_content_matches_input_after_decompression(temp_repo):
+    temp_repo.initialize_directories()
+
+    test_content = b"scm test content"
+
+    returned_hash = temp_repo.write_object(test_content)
+    expected_folder = temp_repo.objects / returned_hash[:2]
+    expected_file = expected_folder / returned_hash[2:]
+
+    with open(expected_file, "rb") as f:
+        saved_bytes = f.read()
+
+    assert zlib.decompress(saved_bytes) == test_content
