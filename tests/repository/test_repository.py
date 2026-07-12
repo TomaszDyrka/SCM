@@ -62,3 +62,27 @@ def test_write_objects_compressed_content_matches_input_after_decompression(temp
         saved_bytes = f.read()
 
     assert zlib.decompress(saved_bytes) == test_content
+
+def test_update_branch_structure_and_file_content_are_correct(temp_repo):
+    temp_repo.initialize_directories()
+
+    name = "master"
+
+    metadata = """
+    commit 228\x00tree 4a5e12b9c30b2c1a4d5e6f7a8b9c0d1e2f3a4b5c
+    parent 1c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b
+    author Jan Kowalski jan@kowalski.pl 1717593600 +0200
+    committer Jan Kowalski jan@kowalski.pl 1717593600 +0200
+    
+    First commit message
+    """
+
+    temp_repo.update_branch(name, metadata)
+    branch_file = (temp_repo.refs / "heads" / name)
+
+    assert branch_file.is_file()
+
+    with open(branch_file, "r") as f:
+        saved_hash = f.read()
+
+    assert saved_hash == compute_hash(metadata.encode())

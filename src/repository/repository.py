@@ -20,6 +20,8 @@ class Repository:
     def initialize_directories(self) -> None:
         self.objects.mkdir(parents=True, exist_ok=True)
         self.refs.mkdir(parents=True, exist_ok=True)
+        heads = self.refs / "heads"
+        heads.mkdir(parents=True, exist_ok=True)
 
         if not self.HEAD.exists():
             self.HEAD.touch()
@@ -41,3 +43,12 @@ class Repository:
             object_file.write(compressed_content)
 
         return object_hash
+
+    def update_branch(self, name: str, last_commit_metadata: str):
+        commit_hash = compute_hash(last_commit_metadata.encode())
+        file_path = self.refs / "heads" / name
+
+        with open(file=file_path, mode="w") as head_file:
+            head_file.write(commit_hash)
+
+        return commit_hash
