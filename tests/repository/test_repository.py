@@ -1,3 +1,4 @@
+import pytest
 from src.repository.repository import compute_hash
 import zlib
 
@@ -121,10 +122,6 @@ def test_read_object_is_saved_and_loaded_content_the_same(temp_repo):
 
     assert test_content == saved_content
 
-
-import pytest
-
-
 def test_read_object_raises_file_not_found_for_missing_hash(temp_repo):
     temp_repo.initialize_directories()
 
@@ -134,3 +131,32 @@ def test_read_object_raises_file_not_found_for_missing_hash(temp_repo):
         temp_repo.read_object(fake_hash)
 
     assert f"Object {fake_hash} does not exist in the repository." in str(exc_info.value)
+
+
+import pytest
+
+
+def test_read_branch_success_and_failure(temp_repo):
+    temp_repo.initialize_directories()
+
+    branch_name = "feature-login"
+    commit_metadata = """
+        commit 228\x00tree 4a5e12b9c30b2c1a4d5e6f7a8b9c0d1e2f3a4b5c
+        parent 1c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b
+        author Jan Kowalski jan@kowalski.pl 1717593600 +0200
+        committer Jan Kowalski jan@kowalski.pl 1717593600 +0200
+        
+        First commit message
+    """
+
+    temp_repo.update_branch(branch_name, commit_metadata)
+    saved_hash = temp_repo.read_branch(branch_name)
+    metadata_hash = compute_hash(commit_metadata.encode())
+
+    assert metadata_hash == saved_hash
+
+    missing_branch = "non-existent-branch"
+    with pytest.raises(FileNotFoundError) as exc_info:
+        temp_repo.read_branch(missing_branch)
+
+    assert f"Branch {missing_branch} does not exist in the repository." in str(exc_info.value)

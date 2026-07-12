@@ -81,3 +81,14 @@ class Repository:
         decompressed_content = decompress(compressed_content)
 
         return decompressed_content
+
+    def read_branch(self, name: str) -> str:
+        file_path = self.refs / "heads" / name
+
+        if not file_path.exists():
+            raise FileNotFoundError(f"Branch {name} does not exist in the repository.")
+
+        with open(file=file_path, mode="r") as head_file:
+            commit_hash = head_file.read().strip()
+
+        return commit_hash
