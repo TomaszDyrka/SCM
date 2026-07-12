@@ -1,6 +1,7 @@
 from pathlib import Path
 import hashlib
 from zlib import compress, decompress
+from .ensure_initialized_wrapper import ensure_initialized
 
 
 def compute_hash(content: bytes) -> str:
@@ -17,6 +18,8 @@ class Repository:
         self.refs = repository_path / hidden_folder_name / "refs"
         self.HEAD = repository_path / hidden_folder_name / "HEAD.txt"
 
+        self._directories_initialized = False
+
     def initialize_directories(self) -> None:
         self.objects.mkdir(parents=True, exist_ok=True)
         self.refs.mkdir(parents=True, exist_ok=True)
@@ -26,7 +29,10 @@ class Repository:
         if not self.HEAD.exists():
             self.HEAD.touch()
 
+        self._directories_initialized = True
+
     # Writing Methods
+    @ensure_initialized
     def write_object(self, content: bytes) -> str:
         # Determine paths
         object_hash = compute_hash(content)
@@ -44,6 +50,7 @@ class Repository:
 
         return object_hash
 
+    @ensure_initialized
     def update_branch(self, name: str, last_commit_metadata: str):
         commit_hash = compute_hash(last_commit_metadata.encode())
         file_path = self.refs / "heads" / name
@@ -53,17 +60,20 @@ class Repository:
 
         return commit_hash
 
+    @ensure_initialized
     def update_head_path(self, branch_name: str) -> None:
         content = f"ref: refs/heads/{branch_name}"
 
         with open(file=self.HEAD, mode="w") as head_file:
             head_file.write(content)
 
+    @ensure_initialized
     def update_head_hash(self, commit_hash: str) -> None:
         with open(file=self.HEAD, mode="w") as head_file:
             head_file.write(commit_hash)
 
     # Reading Methods
+    @ensure_initialized
     def read_object(self, object_hash: str) -> bytes:
         # Determine paths
         folder_name, file_name = object_hash[:2], object_hash[2:]
@@ -81,6 +91,7 @@ class Repository:
 
         return decompressed_content
 
+    @ensure_initialized
     def read_branch(self, name: str) -> str:
         file_path = self.refs / "heads" / name
 
@@ -92,6 +103,7 @@ class Repository:
 
         return commit_hash
 
+    @ensure_initialized
     def read_head(self) -> str:
         with open(file=self.HEAD, mode="r") as head_file:
             head_content = head_file.read()
