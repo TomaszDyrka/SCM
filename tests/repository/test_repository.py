@@ -55,6 +55,7 @@ def test_write_objects_compressed_content_matches_input_after_decompression(temp
     test_content = b"scm test content"
 
     returned_hash = temp_repo.write_object(test_content)
+
     expected_folder = temp_repo.objects / returned_hash[:2]
     expected_file = expected_folder / returned_hash[2:]
 
@@ -109,3 +110,27 @@ def test_update_head_hash_file_content_is_correct(temp_repo):
         saved_path = f.read()
 
     assert saved_path == commit_hash
+
+def test_read_object_is_saved_and_loaded_content_the_same(temp_repo):
+    temp_repo.initialize_directories()
+
+    test_content = b"scm test content"
+
+    object_hash = temp_repo.write_object(test_content)
+    saved_content = temp_repo.read_object(object_hash)
+
+    assert test_content == saved_content
+
+
+import pytest
+
+
+def test_read_object_raises_file_not_found_for_missing_hash(temp_repo):
+    temp_repo.initialize_directories()
+
+    fake_hash = "0000000000000000000000000000000000000000"
+
+    with pytest.raises(FileNotFoundError) as exc_info:
+        temp_repo.read_object(fake_hash)
+
+    assert f"Object {fake_hash} does not exist in the repository." in str(exc_info.value)

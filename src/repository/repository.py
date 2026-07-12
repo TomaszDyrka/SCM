@@ -63,3 +63,21 @@ class Repository:
 
         with open(file=self.HEAD, mode="w") as head_file:
             head_file.write(commit_hash)
+
+    # Reading Methods
+    def read_object(self, object_hash: str) -> bytes:
+        # Determine paths
+        folder_name, file_name = object_hash[:2], object_hash[2:]
+        folder_path = self.objects / folder_name
+        file_path = folder_path / file_name
+
+        if not file_path.exists():
+            raise FileNotFoundError(f"Object {object_hash} does not exist in the repository.")
+
+        # Read and decompress object's content
+        with open(file=file_path, mode="rb") as object_file:
+            compressed_content = object_file.read()
+
+        decompressed_content = decompress(compressed_content)
+
+        return decompressed_content
