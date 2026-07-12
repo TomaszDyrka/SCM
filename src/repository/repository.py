@@ -52,3 +52,14 @@ class Repository:
             head_file.write(commit_hash)
 
         return commit_hash
+
+    def update_head_path(self, branch_name: str) -> None:
+        content = f"ref: refs/heads/{branch_name}"
+
+        with open(file=self.HEAD, mode="w") as head_file:
+            head_file.write(content)
+
+    def update_head_hash(self, commit_hash: str) -> None:
+
+        with open(file=self.HEAD, mode="w") as head_file:
+            head_file.write(commit_hash)

@@ -86,3 +86,26 @@ def test_update_branch_structure_and_file_content_are_correct(temp_repo):
         saved_hash = f.read()
 
     assert saved_hash == compute_hash(metadata.encode())
+
+def test_update_head_path_file_content_is_correct(temp_repo):
+    temp_repo.initialize_directories()
+
+    branch_name = "test_branch"
+    temp_repo.update_head_path(branch_name)
+
+    with open(temp_repo.HEAD, "r") as f:
+        saved_path = f.read()
+
+    assert saved_path == f"ref: refs/heads/{branch_name}"
+
+
+def test_update_head_hash_file_content_is_correct(temp_repo):
+    temp_repo.initialize_directories()
+
+    commit_hash = "d0ba1fb9ef60b7487f40c42c22b6091327fa24e2"
+    temp_repo.update_head_hash(commit_hash)
+
+    with open(temp_repo.HEAD, "r") as f:
+        saved_path = f.read()
+
+    assert saved_path == commit_hash
