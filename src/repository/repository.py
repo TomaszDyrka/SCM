@@ -1,4 +1,10 @@
 from pathlib import Path
+import hashlib
+
+
+def compute_hash(file_content: bytes) -> str:
+    return hashlib.sha1(file_content).hexdigest()
+
 
 class Repository:
 
@@ -16,3 +22,4 @@ class Repository:
 
         if not self.HEAD.exists():
             self.HEAD.touch()
+
