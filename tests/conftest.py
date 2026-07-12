@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 # from src.repository.repository import Repository
 from src.models.binary_large_object import BinaryLargeObject
+from src.models.commit import Commit
 
 # @pytest.fixture
 # def temp_repo(tmp_path: Path):
@@ -10,7 +11,12 @@ from src.models.binary_large_object import BinaryLargeObject
 #     yield repo
 
 @pytest.fixture
-def temp_blob(content: bytes):
-    blob = BinaryLargeObject(content)
-
-    yield blob
+def temp_commit() -> Commit:
+    return Commit(
+        tree="default_tree_hash",
+        parent_hashes=["default_parent_hash"],
+        author="John Doe",
+        committer="John Doe",
+        message="Default commit message",
+        timestamp="1700000000",
+    )

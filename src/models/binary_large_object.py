@@ -7,4 +7,4 @@ class BinaryLargeObject:
         return f"blob {len(self.content)}"
 
     def serialize(self) -> bytes:
-        return f"{self.header}\x00".encode("utf-8") + self.content
+        return f"{self.header}\x00".encode() + self.content
