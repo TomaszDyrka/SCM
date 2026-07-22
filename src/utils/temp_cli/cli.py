@@ -1,13 +1,13 @@
 import argparse
 import inspect
 
-from src.repository import repository as rp
+from repository import repository as rp
 
-from src.commands.commands import *
-import src.commands.commands as cmd_pkg
+from commands.commands import *
+import commands.commands as cmd_pkg
 
-from src.utils.parser.parser import BaseParser
-from src.commands.base.base_command import BaseCommand
+from utils.parser.parser import BaseParser
+from commands.base.base_command import BaseCommand
 
 
 def setup_cli() -> BaseParser:
