@@ -31,6 +31,7 @@ class Repository:
         self.objects = None
         self.refs = None
         self.HEAD = None
+        self.index = None
         self.set_repository_path(repository_path)
 
         self._directories_initialized = False
@@ -45,6 +46,7 @@ class Repository:
         self.objects = repository_path / self.hidden_folder_name / "objects"
         self.refs = repository_path / self.hidden_folder_name / "refs"
         self.HEAD = repository_path / self.hidden_folder_name / "HEAD.txt"
+        self.index = repository_path / self.hidden_folder_name / "index.txt"
 
     def initialize_directories(self) -> None:
         """Creates the required repository directories and HEAD file on disk."""
