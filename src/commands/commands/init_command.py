@@ -11,6 +11,11 @@ class ExampleCommand(BaseCommand):
 
     @classmethod
     def register_parser(cls, registry: _SubParsersAction) -> None:
+        """Registers the init command parser with available arguments and flags.
+
+        Args:
+            registry: Subparser action manager where the command will be registered.
+        """
         subparser = registry.add_parser(cls._name)
         subparser.add_argument(
             "-p",
@@ -32,6 +37,12 @@ class ExampleCommand(BaseCommand):
 
     @staticmethod
     def execute(repo, args) -> None:
+        """Executes the init command to initialize a new repository.
+
+        Args:
+            repo: Repository instance on which the command will be executed.
+            args: Parsed command-line arguments containing options like path and branch.
+        """
         repo_path: Path = args.path
         branch_name: str = args.branch_name
 
