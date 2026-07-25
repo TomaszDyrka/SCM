@@ -5,12 +5,26 @@ from .ensure_initialized_wrapper import ensure_initialized
 
 
 def compute_hash(content: bytes) -> str:
+    """Computes the SHA-1 hash for the given binary content.
+
+    Args:
+        content: Binary content to hash.
+
+    Returns:
+        Hexadecimal representation of the computed SHA-1 hash.
+    """
     return hashlib.sha1(content).hexdigest()
 
 class Repository:
+    """Manages the structure, files, and objects of a repository."""
 
     # Initialization
     def __init__(self, repository_path: Path) -> None:
+        """Initializes the repository instance with target paths.
+
+        Args:
+            repository_path: Path where the repository is located or created.
+        """
         self.hidden_folder_name = ".rvn"
 
         self.repository_path = None
@@ -22,12 +36,18 @@ class Repository:
         self._directories_initialized = False
 
     def set_repository_path(self, repository_path: Path) -> None:
+        """Sets internal directory and file paths based on the repository location.
+
+        Args:
+            repository_path: Target root directory for the repository.
+        """
         self.repository_path = repository_path / self.hidden_folder_name
         self.objects = repository_path / self.hidden_folder_name / "objects"
         self.refs = repository_path / self.hidden_folder_name / "refs"
         self.HEAD = repository_path / self.hidden_folder_name / "HEAD.txt"
 
     def initialize_directories(self) -> None:
+        """Creates the required repository directories and HEAD file on disk."""
         self.objects.mkdir(parents=True, exist_ok=True)
         self.refs.mkdir(parents=True, exist_ok=True)
         heads = self.refs / "heads"
@@ -41,6 +61,14 @@ class Repository:
     # Writing Methods
     @ensure_initialized
     def write_object(self, content: bytes) -> str:
+        """Compresses and writes binary content to the objects directory.
+
+        Args:
+            content: Binary content of the object to store.
+
+        Returns:
+            Computed SHA-1 hash of the stored object.
+        """
         # Determine paths
         object_hash = compute_hash(content)
         folder_name, file_name = object_hash[:2], object_hash[2:]
@@ -59,6 +87,15 @@ class Repository:
 
     @ensure_initialized
     def update_branch(self, name: str, last_commit_metadata: str):
+        """Updates or creates a branch reference with a new commit hash.
+
+        Args:
+            name: Name of the branch to update.
+            last_commit_metadata: Commit metadata used to calculate hash.
+
+        Returns:
+            Computed hash of the commit written to the branch.
+        """
         commit_hash = compute_hash(last_commit_metadata.encode())
         file_path = self.refs / "heads" / name
 
@@ -69,19 +106,40 @@ class Repository:
 
     @ensure_initialized
     def update_head_path(self, branch_name: str) -> None:
+        """Updates HEAD to point to a specific branch reference.
+
+        Args:
+            branch_name: Target branch name.
+        """
         content = f"ref: refs/heads/{branch_name}"
 
-        with open(file=self.HEAD, mode="w") as head_file:
+        with open(file=file_path if (file_path := self.HEAD) else self.HEAD, mode="w") as head_file:
             head_file.write(content)
 
     @ensure_initialized
     def update_head_hash(self, commit_hash: str) -> None:
+        """Updates HEAD directly with a commit hash (detached HEAD state).
+
+        Args:
+            commit_hash: Commit hash to set directly in HEAD.
+        """
         with open(file=self.HEAD, mode="w") as head_file:
             head_file.write(commit_hash)
 
     # Reading Methods
     @ensure_initialized
     def read_object(self, object_hash: str) -> bytes:
+        """Reads and decompresses an object from the objects directory.
+
+        Args:
+            object_hash: SHA-1 hash identifier of the object.
+
+        Returns:
+            Decompressed binary content of the requested object.
+
+        Raises:
+            FileNotFoundError: If no object with the given hash exists.
+        """
         # Determine paths
         folder_name, file_name = object_hash[:2], object_hash[2:]
         folder_path = self.objects / folder_name
@@ -100,6 +158,17 @@ class Repository:
 
     @ensure_initialized
     def read_branch(self, name: str) -> str:
+        """Reads the commit hash referenced by a branch.
+
+        Args:
+            name: Name of the branch.
+
+        Returns:
+            Commit hash saved in the branch reference file.
+
+        Raises:
+            FileNotFoundError: If the requested branch reference does not exist.
+        """
         file_path = self.refs / "heads" / name
 
         if not file_path.exists():
@@ -112,6 +181,11 @@ class Repository:
 
     @ensure_initialized
     def read_head(self) -> str:
+        """Reads raw content of the HEAD file.
+
+        Returns:
+            Content of the HEAD file.
+        """
         with open(file=self.HEAD, mode="r") as head_file:
             head_content = head_file.read()
 
