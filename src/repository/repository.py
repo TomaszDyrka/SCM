@@ -1,6 +1,9 @@
+import os
 from pathlib import Path
 import hashlib
 from zlib import compress, decompress
+
+from models.binary_large_object import BinaryLargeObject
 from .ensure_initialized_wrapper import ensure_initialized
 
 
@@ -127,6 +130,35 @@ class Repository:
         """
         with open(file=self.HEAD, mode="w") as head_file:
             head_file.write(commit_hash)
+
+    @ensure_initialized
+    def add_file_to_index(self, file_path: Path, blob: BinaryLargeObject) -> None:
+        """Adds or updates a file entry in the repository index.
+
+        Args:
+            file_path: Path of the file relative to the repository root.
+            blob: Serialized binary large object representing the file content.
+        """
+        file_mode = file_path.stat().st_mode
+        blob_hash = compute_hash(blob.serialize())
+        relative_path = file_path.relative_to(self.repository_path.parent)
+
+        # Get all entries from index.txt
+        entries = {}
+        if self.index.exists():
+            with open(file=self.index, mode="r") as index_file:
+                for line in index_file:
+                    if line.strip():
+                        mode, b_hash, path = line.strip().split(" ", 2)
+                        entries[path] = (mode, b_hash)
+
+        # Add/Update entry
+        entries[str(relative_path)] = (file_mode, blob_hash)
+
+        # Recreate index.txt with changes
+        with open(file=self.index, mode="w") as index_file:
+            for path, (mode, b_hash) in entries.items():
+                index_file.write(f"{mode} {b_hash} {path}\n")
 
     # Reading Methods
     @ensure_initialized
