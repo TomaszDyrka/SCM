@@ -5,7 +5,14 @@ from zlib import compress, decompress
 
 from models.binary_large_object import BinaryLargeObject
 from .ensure_initialized_wrapper import ensure_initialized
+from dataclasses import dataclass
 
+
+@dataclass
+class IndexEntry:
+    mode: str
+    hash: str
+    path: str
 
 def compute_hash(content: bytes) -> str:
     """Computes the SHA-1 hash for the given binary content.
@@ -224,3 +231,21 @@ class Repository:
             head_content = head_file.read()
 
         return head_content
+
+    @ensure_initialized
+    def read_index(self) -> dict[str, IndexEntry]:
+        """Reads and parses the repository index file.
+
+        Returns:
+            A dictionary mapping relative file paths to their corresponding IndexEntry objects.
+        """
+        entries = {}
+        if self.index.exists():
+            with open(file=self.index, mode="r") as index_file:
+                for line in index_file:
+                    line = line.strip()
+                    if line:
+                        mode, b_hash, path = line.split(" ", 2)
+                        entries[path] = IndexEntry(mode=mode, hash=b_hash, path=path)
+
+        return entries
