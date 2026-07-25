@@ -1,8 +1,8 @@
+import os
 from pathlib import Path
 from commands.base.base_command import BaseCommand
 import argparse
 from argparse import _SubParsersAction
-
 from repository.repository import Repository
 
 
@@ -43,9 +43,10 @@ class InitCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options like path and branch.
         """
-        repo_path: Path = args.path
-        branch_name: str = args.branch_name
+        target_path: Path = args.path.resolve()
 
-        repository = Repository(repo_path)
-        repository.initialize_directories()
-        repository.update_head_path(branch_name)
+        target_path.mkdir(parents=True, exist_ok=True)
+        os.chdir(target_path)
+        repo.repo_path = target_path
+        repo.initialize_directories()
+        repo.update_head_path(args.branch_name)

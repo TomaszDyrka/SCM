@@ -33,7 +33,7 @@ def test_init_command_execute(tmp_path, monkeypatch):
     mock_repo_instance = MagicMock()
     mock_repo_class = MagicMock(return_value=mock_repo_instance)
 
-    monkeypatch.setattr("commands.init.Repository", mock_repo_class)
+    monkeypatch.setattr("src.commands.commands.init_command.Repository", mock_repo_class)
 
     args = argparse.Namespace(path=tmp_path, branch_name="feature")
 
