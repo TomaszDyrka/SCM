@@ -11,7 +11,7 @@ class Repository:
 
     # Initialization
     def __init__(self, repository_path: Path) -> None:
-        hidden_folder_name = ".scm"
+        hidden_folder_name = ".rvn"
 
         self.repository_path = repository_path / hidden_folder_name
         self.objects = repository_path / hidden_folder_name / "objects"
