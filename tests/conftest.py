@@ -1,15 +1,15 @@
 import pytest
 from pathlib import Path
-# from src.repository.repository import Repository
+from src.repository.repository import Repository
 from src.models.binary_large_object import BinaryLargeObject
 from src.models.commit import Commit
 from src.models.tree import Tree
 
-# @pytest.fixture
-# def temp_repo(tmp_path: Path):
-#     repo = Repository(tmp_path)
-#
-#     yield repo
+@pytest.fixture
+def temp_repo(tmp_path: Path):
+    repo = Repository(tmp_path)
+
+    yield repo
 
 @pytest.fixture
 def create_blob():
