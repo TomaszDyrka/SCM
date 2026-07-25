@@ -6,7 +6,7 @@ from argparse import _SubParsersAction
 from repository.repository import Repository
 
 
-class ExampleCommand(BaseCommand):
+class InitCommand(BaseCommand):
     _name = "init"
 
     @classmethod
