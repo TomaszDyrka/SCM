@@ -29,16 +29,12 @@ def test_init_command_default_arguments():
     assert args.branch_name == "master"
 
 
-def test_init_command_execute(tmp_path, monkeypatch):
-    mock_repo_instance = MagicMock()
-    mock_repo_class = MagicMock(return_value=mock_repo_instance)
-
-    monkeypatch.setattr("src.commands.commands.init_command.Repository", mock_repo_class)
-
+def test_init_command_execute(tmp_path):
+    mock_repo = MagicMock()
     args = argparse.Namespace(path=tmp_path, branch_name="feature")
 
-    InitCommand.execute(None, args)
+    InitCommand.execute(mock_repo, args)
 
-    mock_repo_class.assert_called_once_with(tmp_path)
-    mock_repo_instance.initialize_directories.assert_called_once()
-    mock_repo_instance.update_head_path.assert_called_once_with("refs/heads/feature")
+    assert mock_repo.repo_path == tmp_path.resolve()
+    mock_repo.initialize_directories.assert_called_once()
+    mock_repo.update_head_path.assert_called_once_with("feature")
