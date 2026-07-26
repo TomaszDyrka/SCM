@@ -1,9 +1,9 @@
 import pytest
 import argparse
 
-from src.utils.temp_cli.cli import setup_cli
-from src.utils.parser.parser import BaseParser
-from src.commands.commands.example_command import ExampleCommand
+from utils.temp_cli.cli import setup_cli
+from utils.parser.parser import BaseParser
+from commands.commands.example_command import ExampleCommand
 
 class TestCLIParser:
     """Main CLI tests"""
@@ -12,6 +12,8 @@ class TestCLIParser:
         """tests if setup_cli returns BaseParser"""
 
         parser = setup_cli()
+        print(type(parser).__module__)
+        print(BaseParser.__module__)
         assert isinstance(parser, BaseParser)
         
     def test_setup_cli_has_subparser_registry(self):
@@ -33,7 +35,7 @@ class TestExampleCommand:
     def test_execute_with_valid_argument(self, capsys):
         """tests when flag 'test_arg' has flag 'y'."""
 
-        mock_args = argparse.Namespace(test_arg="y")
+        mock_args = argparse.Namespace(test_pos_arg="y")
         # basicly string rn, should be changed later
         mock_repo = "RepoRepoBamBam"
         
@@ -50,7 +52,7 @@ class TestExampleCommand:
     def test_execute_with_invalid_argument(self, capsys):
         """tests when flag invalid"""
 
-        mock_args = argparse.Namespace(test_arg="nah")
+        mock_args = argparse.Namespace(test_pos_arg="nah")
         mock_repo = "RepoRepoBamBam"
         
         ExampleCommand.execute(mock_repo, mock_args)
