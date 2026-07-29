@@ -1,5 +1,6 @@
 import pytest
 from src.repository.repository import compute_hash
+from src.models.binary_large_object import BinaryLargeObject
 import zlib
 
 
@@ -175,3 +176,74 @@ def test_read_head_input_and_saved_values_match(temp_repo):
     updated_head = temp_repo.read_head()
 
     assert updated_head == commit_hash
+
+def test_add_file_to_index_creates_entry_in_index_file(temp_repo):
+    temp_repo.initialize_directories()
+
+    test_file = temp_repo.repository_path / "main.py"
+    test_file.write_text("print('hello')")
+
+    blob = BinaryLargeObject(b"print('hello')")
+    blob_hash = temp_repo.write_object(blob.serialize())
+
+    temp_repo.add_file_to_index(test_file, blob)
+
+    assert temp_repo.index.is_file()
+
+    entries = temp_repo.read_index()
+    assert "main.py" in entries
+    assert entries["main.py"].hash == blob_hash
+
+
+def test_add_file_to_index_updates_existing_entry(temp_repo):
+    temp_repo.initialize_directories()
+
+    test_file = temp_repo.repository_path / "main.py"
+    test_file.write_text("v1")
+
+    blob_v1 = BinaryLargeObject(b"v1")
+    temp_repo.write_object(blob_v1.serialize())
+    temp_repo.add_file_to_index(test_file, blob_v1)
+
+    test_file.write_text("v2")
+    blob_v2 = BinaryLargeObject(b"v2")
+    blob_v2_hash = temp_repo.write_object(blob_v2.serialize())
+    temp_repo.add_file_to_index(test_file, blob_v2)
+
+    entries = temp_repo.read_index()
+    assert len(entries) == 1
+    assert entries["main.py"].hash == blob_v2_hash
+
+
+def test_read_index_returns_empty_dict_when_index_file_missing(temp_repo):
+    temp_repo.initialize_directories()
+
+    entries = temp_repo.read_index()
+
+    assert entries == {}
+
+
+def test_read_index_parses_multiple_files_correctly(temp_repo):
+    temp_repo.initialize_directories()
+
+    file_a = temp_repo.repository_path / "a.txt"
+    file_b = temp_repo.repository_path / "src" / "b.txt"
+    file_b.parent.mkdir(parents=True, exist_ok=True)
+
+    file_a.write_text("content_a")
+    file_b.write_text("content_b")
+
+    blob_a = BinaryLargeObject(b"content_a")
+    blob_b = BinaryLargeObject(b"content_b")
+
+    temp_repo.write_object(blob_a.serialize())
+    temp_repo.write_object(blob_b.serialize())
+
+    temp_repo.add_file_to_index(file_a, blob_a)
+    temp_repo.add_file_to_index(file_b, blob_b)
+
+    entries = temp_repo.read_index()
+
+    assert len(entries) == 2
+    assert "a.txt" in entries
+    assert "src/b.txt" in entries or "src\\b.txt" in entries
