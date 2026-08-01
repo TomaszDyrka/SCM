@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
+import argparse
 from unittest.mock import MagicMock
-
 from src.commands.commands.init_command import InitCommand
 
 
@@ -30,12 +30,14 @@ def test_init_command_default_arguments():
     assert args.branch_name == "master"
 
 
-def test_init_command_execute(tmp_path):
-    mock_repo = MagicMock()
+def test_init_command_execute(tmp_path, temp_repo):
     args = argparse.Namespace(path=tmp_path, branch_name="feature")
 
-    InitCommand.execute(mock_repo, args)
+    temp_repo.initialize_directories = MagicMock()
+    temp_repo.update_head_path = MagicMock()
 
-    assert mock_repo.repo_path == tmp_path.resolve()
-    mock_repo.initialize_directories.assert_called_once()
-    mock_repo.update_head_path.assert_called_once_with("feature")
+    InitCommand.execute(temp_repo, args)
+
+    assert temp_repo.repository_path == tmp_path.resolve() / temp_repo.hidden_folder_name
+    temp_repo.initialize_directories.assert_called_once()
+    temp_repo.update_head_path.assert_called_once_with("feature")
