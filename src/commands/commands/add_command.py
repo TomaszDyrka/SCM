@@ -58,6 +58,9 @@ class AddCommand(BaseCommand):
         # Save BLOB in .rvn/objects
         blob_hash = repo.write_object(file_blob.serialize())
 
+        # Add file to the staging area
+        repo.add_file_to_index(file_path, file_blob)
+
     @staticmethod
     def add_directory(repo, args) -> None:
         pass
