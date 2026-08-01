@@ -19,6 +19,7 @@ class AddCommand(BaseCommand):
         subparser.add_argument(
             "path",
             type=Path,
+            nargs="?",
             default=Path("."),
             help="Path of a file/directory that is to be added to the staging area.",
         )
@@ -33,7 +34,17 @@ class AddCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options
         """
-        pass
+
+        target_path: Path = args.path.resolve()
+
+        if target_path.is_file():
+            AddCommand.add_file(repo, args)
+
+        elif target_path.is_dir():
+            AddCommand.add_directory(repo, args)
+
+        else:
+            print(f"There's no file or directory of path {target_path}")
 
     @staticmethod
     def add_file(repo, args) -> None:
