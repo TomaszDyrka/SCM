@@ -1,6 +1,7 @@
+import argparse
 from pathlib import Path
 from unittest.mock import MagicMock
-import argparse
+
 from src.commands.commands.init_command import InitCommand
 
 
