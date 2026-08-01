@@ -53,7 +53,7 @@ jobs:
         run: |
           pytest
 
-  create-pr:
+create-pr:
     needs: [lint, test]
     runs-on: ubuntu-24.04
     steps:
@@ -63,17 +63,21 @@ jobs:
       - name: Create pull request
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          gh pr create 
-          --base develop 
-          --head ${{ github.ref_name }} 
-          --title "Pull request: ${{ github.ref_name }}" 
-          --body "Automatic pull request:
+          PR_BODY: |
+            Automatic pull request:
 
-          This pull request has been generated automaticly.
-          Steps taken:
-          [x] Formatting and Linting
-          [x] unit tests
+            This pull request has been generated **automatically**.
+            
+            ### Steps taken:
+            - [x] Formatting and Linting
+            - [x] Unit tests
 
-          Please review changes and if everything is top-notch accept PR" 
-          || echo "PR already exists or could not be created"
+            ---
+            *Please review changes and if everything is top-notch accept PR*
+        run: |
+          gh pr create \
+            --base develop \
+            --head ${{ github.ref_name }} \
+            --title "Pull request: ${{ github.ref_name }}" \
+            --body "$PR_BODY" \
+            || echo "PR already exists or could not be created"
