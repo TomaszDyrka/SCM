@@ -16,13 +16,12 @@ class AddCommand(BaseCommand):
             registry: Subparser action manager where the command will be registered.
         """
         subparser = registry.add_parser(cls._name)
-        # subparser.add_argument(
-        #     "-p",
-        #     "--path",
-        #     type=Path,
-        #     default=Path.cwd(),
-        #     help="Path where .rvn directory will be created (current directory by default).",
-        # )
+        subparser.add_argument(
+            "path",
+            type=Path,
+            default=Path("."),
+            help="Path of a file/directory that is to be added to the staging area.",
+        )
 
         subparser.set_defaults(func=cls.execute)
 
@@ -34,4 +33,12 @@ class AddCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options
         """
+        pass
+
+    @staticmethod
+    def add_file(repo, args) -> None:
+        pass
+
+    @staticmethod
+    def add_directory(repo, args) -> None:
         pass
