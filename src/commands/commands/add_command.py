@@ -3,6 +3,7 @@ from argparse import _SubParsersAction
 from pathlib import Path
 
 from commands.base.base_command import BaseCommand
+from models.binary_large_object import BinaryLargeObject
 
 
 class AddCommand(BaseCommand):
@@ -35,7 +36,7 @@ class AddCommand(BaseCommand):
             args: Parsed command-line arguments containing options
         """
 
-        target_path: Path = args.path.resolve()
+        target_path: Path = args.path
 
         if target_path.is_file():
             AddCommand.add_file(repo, args)
@@ -48,7 +49,14 @@ class AddCommand(BaseCommand):
 
     @staticmethod
     def add_file(repo, args) -> None:
-        pass
+        file_path = args.path
+
+        # Read file's bytes and create BLOB object
+        file_bytes = file_path.read_bytes()
+        file_blob = BinaryLargeObject(file_bytes)
+
+        # Save BLOB in .rvn/objects
+        blob_hash = repo.write_object(file_blob.serialize())
 
     @staticmethod
     def add_directory(repo, args) -> None:
