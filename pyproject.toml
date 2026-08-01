@@ -12,5 +12,16 @@ dependencies = [
 ]
 
 [project.scripts]
-
 rvn = "main:main"
+
+[tool.pytest.ini_options]
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+pythonpath = ["."]
+markers = [
+    "parser: BaseParser and CLI tests",
+    "exampleCommand: ExampleCommand tests",
+    "repository: every repository test",
+    "modelBlob: every blob model test",
+    "modelCommit: every commit model test",
+    "modelTree: every tree model test",
+]
