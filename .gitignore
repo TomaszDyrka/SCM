@@ -1,6 +1,11 @@
+# python stuff
 .venv/
 __pycache__/
 *.pyc
+
+# code editors
 .idea/
 .vscode/
-*.egg-info/
+
+# package files
+rvn.egg-info/

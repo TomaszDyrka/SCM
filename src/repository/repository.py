@@ -1,11 +1,11 @@
-import os
-from pathlib import Path
 import hashlib
+from dataclasses import dataclass
+from pathlib import Path
 from zlib import compress, decompress
 
 from models.binary_large_object import BinaryLargeObject
+
 from .ensure_initialized_wrapper import ensure_initialized
-from dataclasses import dataclass
 
 
 @dataclass
@@ -13,6 +13,7 @@ class IndexEntry:
     mode: str
     hash: str
     path: str
+
 
 def compute_hash(content: bytes) -> str:
     """Computes the SHA-1 hash for the given binary content.
@@ -24,6 +25,7 @@ def compute_hash(content: bytes) -> str:
         Hexadecimal representation of the computed SHA-1 hash.
     """
     return hashlib.sha1(content).hexdigest()
+
 
 class Repository:
     """Manages the structure, files, and objects of a repository."""
@@ -125,7 +127,9 @@ class Repository:
         """
         content = f"ref: refs/heads/{branch_name}"
 
-        with open(file=file_path if (file_path := self.HEAD) else self.HEAD, mode="w") as head_file:
+        with open(
+            file=file_path if (file_path := self.HEAD) else self.HEAD, mode="w"
+        ) as head_file:
             head_file.write(content)
 
     @ensure_initialized
@@ -187,7 +191,9 @@ class Repository:
         file_path = folder_path / file_name
 
         if not file_path.exists():
-            raise FileNotFoundError(f"Object {object_hash} does not exist in the repository.")
+            raise FileNotFoundError(
+                f"Object {object_hash} does not exist in the repository."
+            )
 
         # Read and decompress object's content
         with open(file=file_path, mode="rb") as object_file:
