@@ -255,3 +255,13 @@ class Repository:
                         entries[path] = IndexEntry(mode=mode, hash=b_hash, path=path)
 
         return entries
+
+    @staticmethod
+    def find_repository_root(start_path: Path = Path.cwd()) -> Path:
+        current = start_path.resolve()
+        while current != current.parent:
+            if (current / ".rvn").is_dir():
+                return current / ".rvn"
+            current = current.parent
+
+        return start_path / ".rvn"
