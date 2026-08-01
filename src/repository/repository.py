@@ -46,8 +46,6 @@ class Repository:
         self.index = None
         self.set_repository_path(repository_path)
 
-        self._directories_initialized = False
-
     def set_repository_path(self, repository_path: Path) -> None:
         """Sets internal directory and file paths based on the repository location.
 
@@ -69,8 +67,6 @@ class Repository:
 
         if not self.HEAD.exists():
             self.HEAD.touch()
-
-        self._directories_initialized = True
 
     # Writing Methods
     @ensure_initialized
