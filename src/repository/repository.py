@@ -252,8 +252,7 @@ class Repository:
 
         return entries
 
-    @staticmethod
-    def find_repository_root(start_path: Path = Path.cwd()) -> Path:
+    def find_repository_root(self, start_path: Path = Path.cwd()) -> Path:
         current = start_path.resolve()
         while current != current.parent:
             if (current / ".rvn").is_dir():
