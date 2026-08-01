@@ -1,9 +1,8 @@
 import os
-from pathlib import Path
-from commands.base.base_command import BaseCommand
-import argparse
 from argparse import _SubParsersAction
-from repository.repository import Repository
+from pathlib import Path
+
+from commands.base.base_command import BaseCommand
 
 
 class InitCommand(BaseCommand):

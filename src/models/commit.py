@@ -1,13 +1,15 @@
 class Commit:
     """Represents a commit object containing tree structure, parent hashes, and metadata."""
 
-    def __init__(self,
-                 tree: str,
-                 parent_hashes: list[str],
-                 author: str,
-                 timestamp: str,
-                 committer: str,
-                 message: str) -> None:
+    def __init__(
+        self,
+        tree: str,
+        parent_hashes: list[str],
+        author: str,
+        timestamp: str,
+        committer: str,
+        message: str,
+    ) -> None:
         """Initializes the Commit instance.
 
         Args:

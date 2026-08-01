@@ -5,10 +5,7 @@ class Tree:
         """Initializes an empty Tree instance."""
         self.entries = []
 
-    def add_entry(self,
-                  entry_hash: str,
-                  entry_type: str,
-                  entry_name: str) -> None:
+    def add_entry(self, entry_hash: str, entry_type: str, entry_name: str) -> None:
         """Adds an entry to the tree structure.
 
         Args:
@@ -16,9 +13,9 @@ class Tree:
             entry_type: Type of the entry (e.g., 'blob' or 'tree').
             entry_name: Name of the file or directory.
         """
-        self.entries.append({"hash": entry_hash,
-                             "type": entry_type,
-                             "name": entry_name})
+        self.entries.append(
+            {"hash": entry_hash, "type": entry_type, "name": entry_name}
+        )
 
     @property
     def header(self) -> str:
