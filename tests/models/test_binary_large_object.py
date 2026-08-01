@@ -25,7 +25,7 @@ class TestModelBlob:
         serialized = blob.serialize()
 
         expected_prefix = b"blob 9\x00"
-        
+
         assert serialized.startswith(expected_prefix)
         assert serialized == expected_prefix + content
 

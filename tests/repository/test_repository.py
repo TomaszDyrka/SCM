@@ -50,7 +50,6 @@ class TestRepository:
 
         assert first_hash == second_hash
 
-
     def test_write_object_saves_compressed_file_in_correct_folder(self, temp_repo):
         temp_repo.initialize_directories()
 
@@ -64,8 +63,9 @@ class TestRepository:
         assert expected_folder.is_dir()
         assert expected_file.is_file()
 
-
-    def test_write_objects_compressed_content_matches_input_after_decompression(self, temp_repo):
+    def test_write_objects_compressed_content_matches_input_after_decompression(
+        self, temp_repo
+    ):
         temp_repo.initialize_directories()
 
         test_content = b"scm test content"
@@ -79,7 +79,6 @@ class TestRepository:
             saved_bytes = f.read()
 
         assert zlib.decompress(saved_bytes) == test_content
-
 
     def test_update_branch_structure_and_file_content_are_correct(self, temp_repo):
         temp_repo.initialize_directories()
@@ -105,7 +104,6 @@ class TestRepository:
 
         assert saved_hash == compute_hash(metadata.encode())
 
-
     def test_update_head_path_file_content_is_correct(self, temp_repo):
         temp_repo.initialize_directories()
 
@@ -116,7 +114,6 @@ class TestRepository:
             saved_path = f.read()
 
         assert saved_path == f"ref: refs/heads/{branch_name}"
-
 
     def test_update_head_hash_file_content_is_correct(self, temp_repo):
         temp_repo.initialize_directories()
@@ -129,7 +126,6 @@ class TestRepository:
 
         assert saved_path == commit_hash
 
-
     def test_read_object_is_saved_and_loaded_content_the_same(self, temp_repo):
         temp_repo.initialize_directories()
 
@@ -139,7 +135,6 @@ class TestRepository:
         saved_content = temp_repo.read_object(object_hash)
 
         assert test_content == saved_content
-
 
     def test_read_object_raises_file_not_found_for_missing_hash(self, temp_repo):
         temp_repo.initialize_directories()
@@ -152,9 +147,6 @@ class TestRepository:
         assert f"Object {fake_hash} does not exist in the repository." in str(
             exc_info.value
         )
-
-
-
 
     def test_read_branch_success_and_failure(self, temp_repo):
         temp_repo.initialize_directories()
@@ -183,7 +175,6 @@ class TestRepository:
             exc_info.value
         )
 
-
     def test_read_head_input_and_saved_values_match(self, temp_repo):
         temp_repo.initialize_directories()
 
@@ -198,7 +189,6 @@ class TestRepository:
         updated_head = temp_repo.read_head()
 
         assert updated_head == commit_hash
-
 
     def test_add_file_to_index_creates_entry_in_index_file(self, temp_repo):
         temp_repo.initialize_directories()
@@ -216,7 +206,6 @@ class TestRepository:
         entries = temp_repo.read_index()
         assert "main.py" in entries
         assert entries["main.py"].hash == blob_hash
-
 
     def test_add_file_to_index_updates_existing_entry(self, temp_repo):
         temp_repo.initialize_directories()
@@ -237,14 +226,12 @@ class TestRepository:
         assert len(entries) == 1
         assert entries["main.py"].hash == blob_v2_hash
 
-
     def test_read_index_returns_empty_dict_when_index_file_missing(self, temp_repo):
         temp_repo.initialize_directories()
 
         entries = temp_repo.read_index()
 
         assert entries == {}
-
 
     def test_read_index_parses_multiple_files_correctly(self, temp_repo):
         temp_repo.initialize_directories()
