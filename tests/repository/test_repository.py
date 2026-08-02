@@ -51,7 +51,9 @@ class TestRepository:
 
         assert first_hash == second_hash
 
-    def test_write_object_saves_compressed_file_in_correct_folder(self, temp_repo_initialized):
+    def test_write_object_saves_compressed_file_in_correct_folder(
+        self, temp_repo_initialized
+    ):
         os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
@@ -79,7 +81,9 @@ class TestRepository:
 
         assert zlib.decompress(saved_bytes) == test_content
 
-    def test_update_branch_structure_and_file_content_are_correct(self, temp_repo_initialized):
+    def test_update_branch_structure_and_file_content_are_correct(
+        self, temp_repo_initialized
+    ):
         os.chdir(temp_repo_initialized.repository_path.parent)
         name = "master"
 
@@ -122,7 +126,9 @@ class TestRepository:
 
         assert saved_path == commit_hash
 
-    def test_read_object_is_saved_and_loaded_content_the_same(self, temp_repo_initialized):
+    def test_read_object_is_saved_and_loaded_content_the_same(
+        self, temp_repo_initialized
+    ):
         os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
@@ -131,7 +137,9 @@ class TestRepository:
 
         assert test_content == saved_content
 
-    def test_read_object_raises_file_not_found_for_missing_hash(self, temp_repo_initialized):
+    def test_read_object_raises_file_not_found_for_missing_hash(
+        self, temp_repo_initialized
+    ):
         os.chdir(temp_repo_initialized.repository_path.parent)
         fake_hash = "0000000000000000000000000000000000000000"
 
@@ -217,7 +225,9 @@ class TestRepository:
         assert len(entries) == 1
         assert entries["main.py"].hash == blob_v2_hash
 
-    def test_read_index_returns_empty_dict_when_index_file_missing(self, temp_repo_initialized):
+    def test_read_index_returns_empty_dict_when_index_file_missing(
+        self, temp_repo_initialized
+    ):
         os.chdir(temp_repo_initialized.repository_path.parent)
         entries = temp_repo_initialized.read_index()
 

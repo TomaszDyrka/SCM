@@ -38,6 +38,8 @@ def test_init_command_execute(tmp_path, temp_repo):
 
     InitCommand.execute(temp_repo, args)
 
-    assert temp_repo.repository_path == tmp_path.resolve() / temp_repo.hidden_folder_name
+    assert (
+        temp_repo.repository_path == tmp_path.resolve() / temp_repo.hidden_folder_name
+    )
     temp_repo.initialize_directories.assert_called_once()
     temp_repo.update_head_path.assert_called_once_with("feature")

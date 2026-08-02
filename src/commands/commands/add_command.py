@@ -6,7 +6,16 @@ from commands.base.base_command import BaseCommand
 from models.binary_large_object import BinaryLargeObject
 from repository.find_root import find_repository_root
 
-IGNORED_DIRS = {".rvn", ".git", ".venv", "venv", "__pycache__", "node_modules", ".pytest_cache"}
+IGNORED_DIRS = {
+    ".rvn",
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "node_modules",
+    ".pytest_cache",
+}
+
 
 class AddCommand(BaseCommand):
     _name = "add"

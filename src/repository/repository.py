@@ -163,7 +163,9 @@ class Repository:
         """
         file_mode = get_file_mode(file_path)
         blob_hash = compute_hash(blob.serialize())
-        relative_path = file_path.resolve().relative_to(self.repository_path.parent).as_posix()
+        relative_path = (
+            file_path.resolve().relative_to(self.repository_path.parent).as_posix()
+        )
 
         # Get all entries from index.txt
         entries = {}

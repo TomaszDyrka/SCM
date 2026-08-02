@@ -99,7 +99,9 @@ class TestAddCommandFile:
         assert len(lines_second_add) == 1
         assert lines_first_add == lines_second_add
 
-    def test_add_modified_file_updates_index_and_creates_new_blob(self, temp_repo_initialized):
+    def test_add_modified_file_updates_index_and_creates_new_blob(
+        self, temp_repo_initialized
+    ):
         repo_root = temp_repo_initialized.repository_path.parent
         os.chdir(repo_root)
 
@@ -207,7 +209,9 @@ class TestAddCommandFile:
         indexed_paths = {line[2] for line in lines}
         assert indexed_paths == {"modules/auth/login.py", "modules/auth/models.py"}
 
-    def test_add_unmodified_directory_does_not_duplicate_objects(self, temp_repo_initialized):
+    def test_add_unmodified_directory_does_not_duplicate_objects(
+        self, temp_repo_initialized
+    ):
         repo_root = temp_repo_initialized.repository_path.parent
         os.chdir(repo_root)
 
@@ -231,7 +235,9 @@ class TestAddCommandFile:
         assert len(lines_second_add) == 1
         assert lines_first_add == lines_second_add
 
-    def test_add_modified_directory_updates_index_and_creates_new_blobs(self, temp_repo_initialized):
+    def test_add_modified_directory_updates_index_and_creates_new_blobs(
+        self, temp_repo_initialized
+    ):
         repo_root = temp_repo_initialized.repository_path.parent
         os.chdir(repo_root)
 
