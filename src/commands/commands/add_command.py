@@ -1,8 +1,8 @@
 import os
 from argparse import _SubParsersAction
 from pathlib import Path
-
-from commands.base.base_command import BaseCommand
+from colorama import Style, init
+from commands.base.base_command import BaseCommand, CLIOutput, DEEP_PURPLE, DEEP_RED
 from models.binary_large_object import BinaryLargeObject
 from repository.find_root import find_repository_root
 
@@ -16,6 +16,7 @@ IGNORED_DIRS = {
     ".pytest_cache",
 }
 
+init(autoreset=True)
 
 class AddCommand(BaseCommand):
     _name = "add"
@@ -56,7 +57,7 @@ class AddCommand(BaseCommand):
             AddCommand.add_directory(repo, args)
 
         else:
-            print(f"There's no file or directory of path {target_path}")
+            CLIOutput.error(f"There's no file or directory of path {DEEP_RED}{target_path}{Style.RESET_ALL}")
 
     @staticmethod
     def add_file(repo, args) -> None:
