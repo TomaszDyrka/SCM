@@ -4,6 +4,7 @@ from pathlib import Path
 
 from commands.base.base_command import BaseCommand
 from models.binary_large_object import BinaryLargeObject
+from repository.find_root import find_repository_root
 
 
 class AddCommand(BaseCommand):
@@ -56,6 +57,7 @@ class AddCommand(BaseCommand):
         file_blob = BinaryLargeObject(file_bytes)
 
         # Save BLOB in .rvn/objects
+        repo.set_repository_path(find_repository_root().parent)
         blob_hash = repo.write_object(file_blob.serialize())
 
         # Add file to the staging area
