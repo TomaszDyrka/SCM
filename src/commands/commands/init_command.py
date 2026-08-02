@@ -6,6 +6,7 @@ from commands.base.base_command import BaseCommand, CLIOutput, DEEP_PURPLE
 
 init(autoreset=True)
 
+
 class InitCommand(BaseCommand):
     _name = "init"
     _messages = {

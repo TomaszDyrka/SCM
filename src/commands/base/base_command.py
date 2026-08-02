@@ -31,6 +31,7 @@ class BaseCommand(abc.ABC):
             **kwargs: key-value arguments
         """
 
+
 class CLIOutput:
     verbose: bool = True
     quiet: bool = False

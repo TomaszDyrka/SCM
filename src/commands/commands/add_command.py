@@ -18,12 +18,11 @@ IGNORED_DIRS = {
 
 init(autoreset=True)
 
+
 class AddCommand(BaseCommand):
     _name = "add"
     _messages = {
-        "added_file": lambda path: (
-            f"Added file {DEEP_PURPLE}{path}{Style.RESET_ALL}"
-        ),
+        "added_file": lambda path: f"Added file {DEEP_PURPLE}{path}{Style.RESET_ALL}",
         "not_found": lambda path: (
             f"There's no file or directory of path {DEEP_RED}{path}{Style.RESET_ALL}"
         ),
