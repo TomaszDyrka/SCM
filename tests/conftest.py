@@ -14,6 +14,12 @@ from src.utils.temp_cli.cli import setup_cli
 def temp_repo(tmp_path: Path):
     return Repository(tmp_path)
 
+@pytest.fixture
+def temp_repo_initialized(tmp_path: Path):
+    repo = Repository(tmp_path)
+    repo.initialize_directories()
+    return repo
+
 
 @pytest.fixture
 def create_blob():

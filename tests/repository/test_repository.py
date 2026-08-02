@@ -1,3 +1,4 @@
+import os
 import zlib
 
 import pytest
@@ -50,14 +51,13 @@ class TestRepository:
 
         assert first_hash == second_hash
 
-    def test_write_object_saves_compressed_file_in_correct_folder(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_write_object_saves_compressed_file_in_correct_folder(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
-        returned_hash = temp_repo.write_object(test_content)
+        returned_hash = temp_repo_initialized.write_object(test_content)
 
-        expected_folder = temp_repo.objects / returned_hash[:2]
+        expected_folder = temp_repo_initialized.objects / returned_hash[:2]
         expected_file = expected_folder / returned_hash[2:]
 
         assert expected_folder.is_dir()

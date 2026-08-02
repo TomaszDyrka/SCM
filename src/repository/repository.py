@@ -253,12 +253,10 @@ class Repository:
 
         return entries
 
-    def find_repository_root(self, start_path: Path = Path.cwd()) -> Path:
-        current = start_path
+    def find_repository_root(self, start_path: Path | None = None) -> Path:
+        current = (start_path or Path.cwd()).resolve()
         while current != current.parent:
             if (current / ".rvn").is_dir():
-                print("DIR")
                 return current / ".rvn"
             current = current.parent
-        print("NOT DIR")
-        return start_path / ".rvn"
+        return (start_path or Path.cwd()) / ".rvn"
