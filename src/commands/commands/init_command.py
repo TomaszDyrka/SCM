@@ -55,4 +55,4 @@ class InitCommand(BaseCommand):
         repo.initialize_directories()
         os.chdir(repo.repository_path.parent)
         repo.update_head_path(args.branch_name)
-        CLIOutput.debug(InitCommand._messages["success"](args.path, args.branch_name))
+        CLIOutput.info(InitCommand._messages["success"](args.path, args.branch_name))
