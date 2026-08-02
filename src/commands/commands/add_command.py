@@ -58,11 +58,27 @@ class AddCommand(BaseCommand):
 
         # Save BLOB in .rvn/objects
         repo.set_repository_path(find_repository_root().parent)
-        blob_hash = repo.write_object(file_blob.serialize())
+        repo.write_object(file_blob.serialize())
 
         # Add file to the staging area
         repo.add_file_to_index(file_path, file_blob)
 
     @staticmethod
     def add_directory(repo, args) -> None:
-        pass
+        directory_path = args.path
+        repo_root = find_repository_root().parent
+        repo.set_repository_path(repo_root)
+
+        for file_path in directory_path.rglob("*"):
+            if file_path.is_file():
+                # Skip files inside .rvn directory
+                if ".rvn" in file_path.parts:
+                    continue
+
+                # Read file's bytes and create BLOB object
+                file_bytes = file_path.read_bytes()
+                file_blob = BinaryLargeObject(file_bytes)
+
+                # Add file to the staging area
+                repo.write_object(file_blob.serialize())
+                repo.add_file_to_index(file_path, file_blob)
