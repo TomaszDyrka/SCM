@@ -3,6 +3,9 @@ from argparse import _SubParsersAction
 
 from repository.repository import Repository
 
+DEEP_PURPLE = "\033[38;2;138;43;226m"
+DEEP_RED = "\033[38;2;178;34;34m"
+
 
 class BaseCommand(abc.ABC):
     _name = "base"
