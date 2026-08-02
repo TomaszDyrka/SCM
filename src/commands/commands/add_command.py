@@ -26,6 +26,7 @@ messages = {
     ),
 }
 
+
 class AddCommand(BaseCommand):
     _name = "add"
 

@@ -15,6 +15,7 @@ messages = {
     )
 }
 
+
 class InitCommand(BaseCommand):
     _name = "init"
 
