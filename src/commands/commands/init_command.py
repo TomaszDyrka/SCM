@@ -46,5 +46,5 @@ class InitCommand(BaseCommand):
 
         repo.set_repository_path(target_path)
         repo.initialize_directories()
-        os.chdir(repo.repository_path)
+        os.chdir(repo.repository_path.parent)
         repo.update_head_path(args.branch_name)
