@@ -20,6 +20,14 @@ init(autoreset=True)
 
 class AddCommand(BaseCommand):
     _name = "add"
+    _messages = {
+        "added_file": lambda path: (
+            f"Added file {DEEP_PURPLE}{path}{Style.RESET_ALL}"
+        ),
+        "not_found": lambda path: (
+            f"There's no file or directory of path {DEEP_RED}{path}{Style.RESET_ALL}"
+        ),
+    }
 
     @classmethod
     def register_parser(cls, registry: _SubParsersAction) -> None:
@@ -57,7 +65,7 @@ class AddCommand(BaseCommand):
             AddCommand.add_directory(repo, args)
 
         else:
-            CLIOutput.error(f"There's no file or directory of path {DEEP_RED}{target_path}{Style.RESET_ALL}")
+            CLIOutput.error(AddCommand._messages["not_found"](target_path))
 
     @staticmethod
     def add_file(repo, args) -> None:
@@ -73,6 +81,7 @@ class AddCommand(BaseCommand):
 
         # Add file to the staging area
         repo.add_file_to_index(file_path, file_blob)
+        CLIOutput.info(AddCommand._messages["added_file"](file_path))
 
     @staticmethod
     def add_directory(repo, args) -> None:
@@ -93,3 +102,4 @@ class AddCommand(BaseCommand):
                 # Add file to the staging area
                 repo.write_object(file_blob.serialize())
                 repo.add_file_to_index(file_path, file_blob)
+                CLIOutput.info(AddCommand._messages["added_file"](file_path))
