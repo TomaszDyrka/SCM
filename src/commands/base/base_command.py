@@ -1,6 +1,8 @@
 import abc
 from argparse import _SubParsersAction
+
 from colorama import Style, init
+
 from repository.repository import Repository
 
 init(autoreset=True)

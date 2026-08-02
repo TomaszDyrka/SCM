@@ -1,6 +1,7 @@
 import os
 from argparse import Namespace
 from pathlib import Path
+
 from commands.commands.add_command import AddCommand
 
 
@@ -177,7 +178,7 @@ class TestAddCommandFile:
         AddCommand.execute(temp_repo_initialized, args)
 
         with open(temp_repo_initialized.index, "r") as f:
-            lines = [line.strip().split() for line in f.readlines()]
+            lines = [line.strip().split() for line in f]
 
         indexed_paths = {line[2] for line in lines}
         assert indexed_paths == {"src/app.py", "src/nested/utils.py"}
@@ -204,7 +205,7 @@ class TestAddCommandFile:
         AddCommand.execute(temp_repo_initialized, args)
 
         with open(temp_repo_initialized.index, "r") as f:
-            lines = [line.strip().split() for line in f.readlines()]
+            lines = [line.strip().split() for line in f]
 
         indexed_paths = {line[2] for line in lines}
         assert indexed_paths == {"modules/auth/login.py", "modules/auth/models.py"}
@@ -282,7 +283,7 @@ class TestAddCommandFile:
         AddCommand.execute(temp_repo_initialized, args)
 
         with open(temp_repo_initialized.index, "r") as f:
-            lines = [line.strip().split() for line in f.readlines()]
+            lines = [line.strip().split() for line in f]
 
         indexed_paths = [line[2] for line in lines]
 

@@ -1,8 +1,9 @@
-import os
 from argparse import _SubParsersAction
 from pathlib import Path
+
 from colorama import Style, init
-from commands.base.base_command import BaseCommand, CLIOutput, DEEP_PURPLE, DEEP_RED
+
+from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
 from models.binary_large_object import BinaryLargeObject
 from repository.find_root import find_repository_root
 
@@ -18,15 +19,15 @@ IGNORED_DIRS = {
 
 init(autoreset=True)
 
+messages = {
+    "added_file": lambda path: f"Added file {DEEP_PURPLE}{path}{Style.RESET_ALL}",
+    "not_found": lambda path: (
+        f"There's no file or directory of path {DEEP_RED}{path}{Style.RESET_ALL}"
+    ),
+}
 
 class AddCommand(BaseCommand):
     _name = "add"
-    _messages = {
-        "added_file": lambda path: f"Added file {DEEP_PURPLE}{path}{Style.RESET_ALL}",
-        "not_found": lambda path: (
-            f"There's no file or directory of path {DEEP_RED}{path}{Style.RESET_ALL}"
-        ),
-    }
 
     @classmethod
     def register_parser(cls, registry: _SubParsersAction) -> None:
@@ -64,7 +65,7 @@ class AddCommand(BaseCommand):
             AddCommand.add_directory(repo, args)
 
         else:
-            CLIOutput.error(AddCommand._messages["not_found"](target_path))
+            CLIOutput.error(messages["not_found"](target_path))
 
     @staticmethod
     def add_file(repo, args) -> None:
@@ -80,7 +81,7 @@ class AddCommand(BaseCommand):
 
         # Add file to the staging area
         repo.add_file_to_index(file_path, file_blob)
-        CLIOutput.info(AddCommand._messages["added_file"](file_path))
+        CLIOutput.info(messages["added_file"](file_path))
 
     @staticmethod
     def add_directory(repo, args) -> None:
@@ -101,4 +102,4 @@ class AddCommand(BaseCommand):
                 # Add file to the staging area
                 repo.write_object(file_blob.serialize())
                 repo.add_file_to_index(file_path, file_blob)
-                CLIOutput.info(AddCommand._messages["added_file"](file_path))
+                CLIOutput.info(messages["added_file"](file_path))
