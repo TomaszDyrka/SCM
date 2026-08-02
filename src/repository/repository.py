@@ -1,4 +1,5 @@
 import hashlib
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from zlib import compress, decompress
@@ -25,6 +26,19 @@ def compute_hash(content: bytes) -> str:
         Hexadecimal representation of the computed SHA-1 hash.
     """
     return hashlib.sha1(content).hexdigest()
+
+
+def get_file_mode(file_path: Path) -> str:
+    if file_path.is_symlink():
+        return "120000"
+
+    if os.name == "nt":
+        executable_extensions = {".exe", ".bat", ".cmd", ".com", ".ps1"}
+        is_exec = file_path.suffix.lower() in executable_extensions
+    else:
+        is_exec = os.access(file_path, os.X_OK)
+
+    return "100755" if is_exec else "100644"
 
 
 class Repository:
@@ -147,7 +161,7 @@ class Repository:
             file_path: Path of the file relative to the repository root.
             blob: Serialized binary large object representing the file content.
         """
-        file_mode = file_path.stat().st_mode
+        file_mode = get_file_mode(file_path)
         blob_hash = compute_hash(blob.serialize())
         relative_path = file_path.resolve().relative_to(self.repository_path.parent).as_posix()
 
