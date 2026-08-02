@@ -1,4 +1,5 @@
 import hashlib
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from zlib import compress, decompress
@@ -27,6 +28,19 @@ def compute_hash(content: bytes) -> str:
     return hashlib.sha1(content).hexdigest()
 
 
+def get_file_mode(file_path: Path) -> str:
+    if file_path.is_symlink():
+        return "120000"
+
+    if os.name == "nt":
+        executable_extensions = {".exe", ".bat", ".cmd", ".com", ".ps1"}
+        is_exec = file_path.suffix.lower() in executable_extensions
+    else:
+        is_exec = os.access(file_path, os.X_OK)
+
+    return "100755" if is_exec else "100644"
+
+
 class Repository:
     """Manages the structure, files, and objects of a repository."""
 
@@ -46,8 +60,6 @@ class Repository:
         self.index = None
         self.set_repository_path(repository_path)
 
-        self._directories_initialized = False
-
     def set_repository_path(self, repository_path: Path) -> None:
         """Sets internal directory and file paths based on the repository location.
 
@@ -62,6 +74,7 @@ class Repository:
 
     def initialize_directories(self) -> None:
         """Creates the required repository directories and HEAD file on disk."""
+        self.repository_path.mkdir(parents=True, exist_ok=True)
         self.objects.mkdir(parents=True, exist_ok=True)
         self.refs.mkdir(parents=True, exist_ok=True)
         heads = self.refs / "heads"
@@ -69,8 +82,6 @@ class Repository:
 
         if not self.HEAD.exists():
             self.HEAD.touch()
-
-        self._directories_initialized = True
 
     # Writing Methods
     @ensure_initialized
@@ -150,9 +161,11 @@ class Repository:
             file_path: Path of the file relative to the repository root.
             blob: Serialized binary large object representing the file content.
         """
-        file_mode = file_path.stat().st_mode
+        file_mode = get_file_mode(file_path)
         blob_hash = compute_hash(blob.serialize())
-        relative_path = file_path.relative_to(self.repository_path).as_posix()
+        relative_path = (
+            file_path.resolve().relative_to(self.repository_path.parent).as_posix()
+        )
 
         # Get all entries from index.txt
         entries = {}

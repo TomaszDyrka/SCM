@@ -16,6 +16,13 @@ def temp_repo(tmp_path: Path):
 
 
 @pytest.fixture
+def temp_repo_initialized(tmp_path: Path):
+    repo = Repository(tmp_path)
+    repo.initialize_directories()
+    return repo
+
+
+@pytest.fixture
 def create_blob():
     def _create_blob(content: bytes = b"default_content") -> BinaryLargeObject:
         return BinaryLargeObject(content)

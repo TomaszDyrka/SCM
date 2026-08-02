@@ -2,7 +2,18 @@ import os
 from argparse import _SubParsersAction
 from pathlib import Path
 
-from commands.base.base_command import BaseCommand
+from colorama import Style, init
+
+from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput
+
+init(autoreset=True)
+
+messages = {
+    "success": lambda path, branch_name: (
+        f"Successfully initialized RVN repository at {DEEP_PURPLE}{path}{Style.RESET_ALL} "
+        f"with {DEEP_PURPLE}{branch_name}{Style.RESET_ALL} as its main branch."
+    )
+}
 
 
 class InitCommand(BaseCommand):
@@ -44,8 +55,8 @@ class InitCommand(BaseCommand):
         """
         target_path: Path = args.path.resolve()
 
-        target_path.mkdir(parents=True, exist_ok=True)
-        os.chdir(target_path)
         repo.set_repository_path(target_path)
         repo.initialize_directories()
+        os.chdir(repo.repository_path.parent)
         repo.update_head_path(args.branch_name)
+        CLIOutput.info(messages["success"](args.path, args.branch_name))
