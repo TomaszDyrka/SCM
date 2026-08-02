@@ -64,15 +64,14 @@ class TestRepository:
         assert expected_file.is_file()
 
     def test_write_objects_compressed_content_matches_input_after_decompression(
-        self, temp_repo
+        self, temp_repo_initialized
     ):
-        temp_repo.initialize_directories()
-
+        os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
-        returned_hash = temp_repo.write_object(test_content)
+        returned_hash = temp_repo_initialized.write_object(test_content)
 
-        expected_folder = temp_repo.objects / returned_hash[:2]
+        expected_folder = temp_repo_initialized.objects / returned_hash[:2]
         expected_file = expected_folder / returned_hash[2:]
 
         with open(expected_file, "rb") as f:
@@ -80,9 +79,8 @@ class TestRepository:
 
         assert zlib.decompress(saved_bytes) == test_content
 
-    def test_update_branch_structure_and_file_content_are_correct(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_update_branch_structure_and_file_content_are_correct(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         name = "master"
 
         metadata = """
@@ -94,8 +92,8 @@ class TestRepository:
         First commit message
         """
 
-        temp_repo.update_branch(name, metadata)
-        branch_file = temp_repo.refs / "heads" / name
+        temp_repo_initialized.update_branch(name, metadata)
+        branch_file = temp_repo_initialized.refs / "heads" / name
 
         assert branch_file.is_file()
 
@@ -104,53 +102,48 @@ class TestRepository:
 
         assert saved_hash == compute_hash(metadata.encode())
 
-    def test_update_head_path_file_content_is_correct(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_update_head_path_file_content_is_correct(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         branch_name = "test_branch"
-        temp_repo.update_head_path(branch_name)
+        temp_repo_initialized.update_head_path(branch_name)
 
-        with open(temp_repo.HEAD, "r") as f:
+        with open(temp_repo_initialized.HEAD, "r") as f:
             saved_path = f.read()
 
         assert saved_path == f"ref: refs/heads/{branch_name}"
 
-    def test_update_head_hash_file_content_is_correct(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_update_head_hash_file_content_is_correct(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         commit_hash = "d0ba1fb9ef60b7487f40c42c22b6091327fa24e2"
-        temp_repo.update_head_hash(commit_hash)
+        temp_repo_initialized.update_head_hash(commit_hash)
 
-        with open(temp_repo.HEAD, "r") as f:
+        with open(temp_repo_initialized.HEAD, "r") as f:
             saved_path = f.read()
 
         assert saved_path == commit_hash
 
-    def test_read_object_is_saved_and_loaded_content_the_same(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_read_object_is_saved_and_loaded_content_the_same(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
-        object_hash = temp_repo.write_object(test_content)
-        saved_content = temp_repo.read_object(object_hash)
+        object_hash = temp_repo_initialized.write_object(test_content)
+        saved_content = temp_repo_initialized.read_object(object_hash)
 
         assert test_content == saved_content
 
-    def test_read_object_raises_file_not_found_for_missing_hash(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_read_object_raises_file_not_found_for_missing_hash(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         fake_hash = "0000000000000000000000000000000000000000"
 
         with pytest.raises(FileNotFoundError) as exc_info:
-            temp_repo.read_object(fake_hash)
+            temp_repo_initialized.read_object(fake_hash)
 
         assert f"Object {fake_hash} does not exist in the repository." in str(
             exc_info.value
         )
 
-    def test_read_branch_success_and_failure(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_read_branch_success_and_failure(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         branch_name = "feature-login"
         commit_metadata = """
             commit 228\x00tree 4a5e12b9c30b2c1a4d5e6f7a8b9c0d1e2f3a4b5c
@@ -161,83 +154,79 @@ class TestRepository:
             First commit message
         """
 
-        temp_repo.update_branch(branch_name, commit_metadata)
-        saved_hash = temp_repo.read_branch(branch_name)
+        temp_repo_initialized.update_branch(branch_name, commit_metadata)
+        saved_hash = temp_repo_initialized.read_branch(branch_name)
         metadata_hash = compute_hash(commit_metadata.encode())
 
         assert metadata_hash == saved_hash
 
         missing_branch = "non-existent-branch"
         with pytest.raises(FileNotFoundError) as exc_info:
-            temp_repo.read_branch(missing_branch)
+            temp_repo_initialized.read_branch(missing_branch)
 
         assert f"Branch {missing_branch} does not exist in the repository." in str(
             exc_info.value
         )
 
-    def test_read_head_input_and_saved_values_match(self, temp_repo):
-        temp_repo.initialize_directories()
-
+    def test_read_head_input_and_saved_values_match(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
         name = "master"
-        temp_repo.update_head_path(name)
-        updated_head = temp_repo.read_head()
+        temp_repo_initialized.update_head_path(name)
+        updated_head = temp_repo_initialized.read_head()
 
         assert updated_head == f"ref: refs/heads/{name}"
 
         commit_hash = "d0ba1fb9ef60b7487f40c42c22b6091327fa24e2"
-        temp_repo.update_head_hash(commit_hash)
-        updated_head = temp_repo.read_head()
+        temp_repo_initialized.update_head_hash(commit_hash)
+        updated_head = temp_repo_initialized.read_head()
 
         assert updated_head == commit_hash
 
-    def test_add_file_to_index_creates_entry_in_index_file(self, temp_repo):
-        temp_repo.initialize_directories()
-
-        test_file = temp_repo.repository_path / "main.py"
+    def test_add_file_to_index_creates_entry_in_index_file(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
+        test_file = temp_repo_initialized.repository_path.parent / "main.py"
         test_file.write_text("print('hello')")
 
         blob = BinaryLargeObject(b"print('hello')")
-        blob_hash = temp_repo.write_object(blob.serialize())
+        blob_hash = temp_repo_initialized.write_object(blob.serialize())
 
-        temp_repo.add_file_to_index(test_file, blob)
+        temp_repo_initialized.add_file_to_index(test_file, blob)
 
-        assert temp_repo.index.is_file()
+        assert temp_repo_initialized.index.is_file()
 
-        entries = temp_repo.read_index()
+        entries = temp_repo_initialized.read_index()
         assert "main.py" in entries
+        print(entries)
         assert entries["main.py"].hash == blob_hash
 
-    def test_add_file_to_index_updates_existing_entry(self, temp_repo):
-        temp_repo.initialize_directories()
-
-        test_file = temp_repo.repository_path / "main.py"
+    def test_add_file_to_index_updates_existing_entry(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
+        test_file = temp_repo_initialized.repository_path.parent / "main.py"
         test_file.write_text("v1")
 
         blob_v1 = BinaryLargeObject(b"v1")
-        temp_repo.write_object(blob_v1.serialize())
-        temp_repo.add_file_to_index(test_file, blob_v1)
+        temp_repo_initialized.write_object(blob_v1.serialize())
+        temp_repo_initialized.add_file_to_index(test_file, blob_v1)
 
         test_file.write_text("v2")
         blob_v2 = BinaryLargeObject(b"v2")
-        blob_v2_hash = temp_repo.write_object(blob_v2.serialize())
-        temp_repo.add_file_to_index(test_file, blob_v2)
+        blob_v2_hash = temp_repo_initialized.write_object(blob_v2.serialize())
+        temp_repo_initialized.add_file_to_index(test_file, blob_v2)
 
-        entries = temp_repo.read_index()
+        entries = temp_repo_initialized.read_index()
         assert len(entries) == 1
         assert entries["main.py"].hash == blob_v2_hash
 
-    def test_read_index_returns_empty_dict_when_index_file_missing(self, temp_repo):
-        temp_repo.initialize_directories()
-
-        entries = temp_repo.read_index()
+    def test_read_index_returns_empty_dict_when_index_file_missing(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
+        entries = temp_repo_initialized.read_index()
 
         assert entries == {}
 
-    def test_read_index_parses_multiple_files_correctly(self, temp_repo):
-        temp_repo.initialize_directories()
-
-        file_a = temp_repo.repository_path / "a.txt"
-        file_b = temp_repo.repository_path / "src" / "b.txt"
+    def test_read_index_parses_multiple_files_correctly(self, temp_repo_initialized):
+        os.chdir(temp_repo_initialized.repository_path.parent)
+        file_a = temp_repo_initialized.repository_path.parent / "a.txt"
+        file_b = temp_repo_initialized.repository_path.parent / "src" / "b.txt"
         file_b.parent.mkdir(parents=True, exist_ok=True)
 
         file_a.write_text("content_a")
@@ -246,13 +235,13 @@ class TestRepository:
         blob_a = BinaryLargeObject(b"content_a")
         blob_b = BinaryLargeObject(b"content_b")
 
-        temp_repo.write_object(blob_a.serialize())
-        temp_repo.write_object(blob_b.serialize())
+        temp_repo_initialized.write_object(blob_a.serialize())
+        temp_repo_initialized.write_object(blob_b.serialize())
 
-        temp_repo.add_file_to_index(file_a, blob_a)
-        temp_repo.add_file_to_index(file_b, blob_b)
+        temp_repo_initialized.add_file_to_index(file_a, blob_a)
+        temp_repo_initialized.add_file_to_index(file_b, blob_b)
 
-        entries = temp_repo.read_index()
+        entries = temp_repo_initialized.read_index()
 
         assert len(entries) == 2
         assert "a.txt" in entries
