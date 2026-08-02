@@ -1,8 +1,8 @@
 import os
 from argparse import _SubParsersAction
 from pathlib import Path
-from colorama import Fore, Style, init
-from commands.base.base_command import BaseCommand, DEEP_PURPLE
+from colorama import Style, init
+from commands.base.base_command import BaseCommand, CLIOutput, DEEP_PURPLE
 
 init(autoreset=True)
 
@@ -55,4 +55,4 @@ class InitCommand(BaseCommand):
         repo.initialize_directories()
         os.chdir(repo.repository_path.parent)
         repo.update_head_path(args.branch_name)
-        print(InitCommand._messages["success"](args.path, args.branch_name))
+        CLIOutput.debug(InitCommand._messages["success"](args.path, args.branch_name))
