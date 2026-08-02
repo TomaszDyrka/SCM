@@ -60,6 +60,7 @@ class Repository:
 
     def initialize_directories(self) -> None:
         """Creates the required repository directories and HEAD file on disk."""
+        self.repository_path.mkdir(parents=True, exist_ok=True)
         self.objects.mkdir(parents=True, exist_ok=True)
         self.refs.mkdir(parents=True, exist_ok=True)
         heads = self.refs / "heads"

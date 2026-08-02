@@ -44,7 +44,6 @@ class InitCommand(BaseCommand):
         """
         target_path: Path = args.path.resolve()
 
-        target_path.mkdir(parents=True, exist_ok=True)
         os.chdir(target_path)
         repo.set_repository_path(target_path)
         repo.initialize_directories()
