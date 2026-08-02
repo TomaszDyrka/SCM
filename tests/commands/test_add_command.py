@@ -157,3 +157,128 @@ class TestAddCommandFile:
 
         blob_file = temp_repo_initialized.objects / new_hash[:2] / new_hash[2:]
         assert blob_file.is_file()
+
+    def test_add_directory_from_root(self, temp_repo_initialized):
+        repo_root = temp_repo_initialized.repository_path.parent
+        os.chdir(repo_root)
+
+        src_dir = repo_root / "src"
+        nested_dir = src_dir / "nested"
+        nested_dir.mkdir(parents=True, exist_ok=True)
+
+        file1 = src_dir / "app.py"
+        file2 = nested_dir / "utils.py"
+        file1.write_bytes(b"print('app')")
+        file2.write_bytes(b"print('utils')")
+
+        args = Namespace(path=Path("src"))
+        AddCommand.execute(temp_repo_initialized, args)
+
+        with open(temp_repo_initialized.index, "r") as f:
+            lines = [line.strip().split() for line in f.readlines()]
+
+        indexed_paths = {line[2] for line in lines}
+        assert indexed_paths == {"src/app.py", "src/nested/utils.py"}
+
+        for mode, blob_hash, _ in lines:
+            assert mode in ("100644", "33206")
+            blob_file = temp_repo_initialized.objects / blob_hash[:2] / blob_hash[2:]
+            assert blob_file.is_file()
+
+    def test_add_directory_from_subdirectory(self, temp_repo_initialized):
+        repo_root = temp_repo_initialized.repository_path.parent
+        modules_dir = repo_root / "modules"
+        auth_dir = modules_dir / "auth"
+        auth_dir.mkdir(parents=True, exist_ok=True)
+
+        file1 = auth_dir / "login.py"
+        file2 = auth_dir / "models.py"
+        file1.write_bytes(b"def login(): pass")
+        file2.write_bytes(b"class User: pass")
+
+        os.chdir(modules_dir)
+
+        args = Namespace(path=Path("auth"))
+        AddCommand.execute(temp_repo_initialized, args)
+
+        with open(temp_repo_initialized.index, "r") as f:
+            lines = [line.strip().split() for line in f.readlines()]
+
+        indexed_paths = {line[2] for line in lines}
+        assert indexed_paths == {"modules/auth/login.py", "modules/auth/models.py"}
+
+    def test_add_unmodified_directory_does_not_duplicate_objects(self, temp_repo_initialized):
+        repo_root = temp_repo_initialized.repository_path.parent
+        os.chdir(repo_root)
+
+        docs_dir = repo_root / "docs"
+        docs_dir.mkdir(parents=True, exist_ok=True)
+
+        file1 = docs_dir / "readme.txt"
+        file1.write_bytes(b"documentation content")
+
+        args = Namespace(path=Path("docs"))
+        AddCommand.execute(temp_repo_initialized, args)
+
+        with open(temp_repo_initialized.index, "r") as f:
+            lines_first_add = f.readlines()
+
+        AddCommand.execute(temp_repo_initialized, args)
+
+        with open(temp_repo_initialized.index, "r") as f:
+            lines_second_add = f.readlines()
+
+        assert len(lines_second_add) == 1
+        assert lines_first_add == lines_second_add
+
+    def test_add_modified_directory_updates_index_and_creates_new_blobs(self, temp_repo_initialized):
+        repo_root = temp_repo_initialized.repository_path.parent
+        os.chdir(repo_root)
+
+        src_dir = repo_root / "src"
+        src_dir.mkdir(parents=True, exist_ok=True)
+
+        file1 = src_dir / "main.py"
+        file1.write_bytes(b"version 1")
+
+        args = Namespace(path=Path("src"))
+        AddCommand.execute(temp_repo_initialized, args)
+
+        with open(temp_repo_initialized.index, "r") as f:
+            _, old_hash, _ = f.readline().strip().split()
+
+        file1.write_bytes(b"version 2")
+        AddCommand.execute(temp_repo_initialized, args)
+
+        with open(temp_repo_initialized.index, "r") as f:
+            lines = f.readlines()
+
+        assert len(lines) == 1
+        _, new_hash, relative_path = lines[0].strip().split()
+
+        assert relative_path == "src/main.py"
+        assert old_hash != new_hash
+
+        old_blob = temp_repo_initialized.objects / old_hash[:2] / old_hash[2:]
+        new_blob = temp_repo_initialized.objects / new_hash[:2] / new_hash[2:]
+
+        assert old_blob.is_file()
+        assert new_blob.is_file()
+
+    def test_add_directory_ignores_rvn_folder(self, temp_repo_initialized):
+        repo_root = temp_repo_initialized.repository_path.parent
+        os.chdir(repo_root)
+
+        test_file = repo_root / "index.py"
+        test_file.write_bytes(b"print('hello')")
+
+        args = Namespace(path=Path("."))
+        AddCommand.execute(temp_repo_initialized, args)
+
+        with open(temp_repo_initialized.index, "r") as f:
+            lines = [line.strip().split() for line in f.readlines()]
+
+        indexed_paths = [line[2] for line in lines]
+
+        assert "index.py" in indexed_paths
+        assert not any(".rvn" in path for path in indexed_paths)
