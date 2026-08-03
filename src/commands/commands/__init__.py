@@ -5,4 +5,5 @@ __all__ = [
     "commit_command",
     "example_command",
     "init_command",
+    "log_command",
 ]
