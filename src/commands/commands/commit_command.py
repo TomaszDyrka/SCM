@@ -13,12 +13,11 @@ from models.tree import Tree
 
 init(autoreset=True)
 
-# messages = {
-#     "success": lambda path, branch_name: (
-#         f"Successfully initialized RVN repository at {DEEP_PURPLE}{path}{Style.RESET_ALL} "
-#         f"with {DEEP_PURPLE}{branch_name}{Style.RESET_ALL} as its main branch."
-#     )
-# }
+messages = {
+    "successful_commit_branch": lambda branch, message: (
+        f"Successfully commited to the branch [{DEEP_PURPLE}{branch}{Style.RESET_ALL}] {message}"
+    )
+}
 
 
 class CommitCommand(BaseCommand):
@@ -51,6 +50,7 @@ class CommitCommand(BaseCommand):
         is_detached_head = False
         tree_hash = CommitCommand._create_tree_structure(repo)
         parent_hash_list = []
+        branch_name = ""
 
         if repo.read_head().split(" ", 1)[0] == "ref:":
             branch_name = Path(repo.read_head().split(" ", 1)[1]).name
@@ -66,9 +66,11 @@ class CommitCommand(BaseCommand):
         commit_hash = repo.write_object(new_commit.serialize())
 
         if not is_detached_head:
-            repo.update_branch(Path(repo.read_head().split(" ", 1)[1]).name, commit_hash)
+            repo.update_branch(branch_name, commit_hash)
+            CLIOutput.info(messages["successful_commit_branch"](branch_name, args.message))
         else:
             repo.update_head_hash(commit_hash)
+
 
     @staticmethod
     def _create_tree_structure(repo) -> str:
@@ -84,12 +86,11 @@ class CommitCommand(BaseCommand):
 
         # Create Tree and BLOB objects
         trees_created = {}
-
         for catalog in sorted_catalogs:
             new_tree = Tree()
 
-            for record in index_content:
-                mode, hash_value, path_str = record.split(" ")
+            for record in index_content.values():
+                hash_value, path_str = record.hash, record.path
                 path = Path(path_str)
 
                 # Adding BLOBs to Tree structure
@@ -102,7 +103,7 @@ class CommitCommand(BaseCommand):
                     new_tree.add_entry(child_tree_hash, "tree", child_catalog.name)
 
             # Adding this iteration's Tree
-            trees_created[catalog] = repo.write_object(new_tree)
+            trees_created[catalog] = repo.write_object(new_tree.serialize())
 
         # Returning project's hash
         return trees_created[Path(".")]
