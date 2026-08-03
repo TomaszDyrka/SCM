@@ -1,3 +1,4 @@
+import os
 from argparse import _SubParsersAction
 from datetime import datetime
 from pathlib import Path
@@ -81,7 +82,6 @@ class CommitCommand(BaseCommand):
         except StagingAreaDoesNotExistError:
             CLIOutput.error(messages["error_no_staging_area"])
 
-
     @staticmethod
     def _create_tree_structure(repo) -> str:
         index_content = repo.read_index()
@@ -114,7 +114,6 @@ class CommitCommand(BaseCommand):
 
             # Adding this iteration's Tree
             trees_created[catalog] = repo.write_object(new_tree.serialize())
-
         # Returning project's hash
         return trees_created[Path(".")]
 
