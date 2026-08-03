@@ -60,8 +60,22 @@ class LogCommand(BaseCommand):
             newest_commit_hash = repo.read_head()
 
         current_commit = repo.read_object(newest_commit_hash).decode("utf-8")
-        CLIOutput.info(messages["log_header"](newest_commit_hash, branch_name))
-        CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(current_commit)))
+        while True:
+
+            CLIOutput.info(messages["log_header"](newest_commit_hash, branch_name))
+            CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(current_commit)))
+
+            parent_hash = LogCommand.parse_parent_hash(current_commit)
+            if not ignore_limit:
+                limit -= 1
+
+            if not ignore_limit and limit <= 0:
+                break
+
+            if not parent_hash:
+                break
+
+            current_commit = repo.read_object(parent_hash).decode("utf-8")
 
     @staticmethod
     def parse_commit_info(text: str) -> tuple[str, str, str]:
@@ -82,4 +96,7 @@ class LogCommand(BaseCommand):
 
         return author, formatted_date, message
 
-
+    @staticmethod
+    def parse_parent_hash(text: str) -> str:
+        parent_match = re.search(r"^parent\s+([a-fA-F0-9]+)$", text, re.MULTILINE)
+        return parent_match.group(1) if parent_match else ""
