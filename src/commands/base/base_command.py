@@ -44,6 +44,11 @@ class CLIOutput:
             print(f"{DEEP_PURPLE}INFO:{Style.RESET_ALL} {message}")
 
     @classmethod
+    def blank(cls, message: str) -> None:
+        if not cls.quiet:
+            print({message})
+
+    @classmethod
     def error(cls, message: str) -> None:
         print(f"{DEEP_RED}ERROR:{Style.RESET_ALL} {message}")
 
