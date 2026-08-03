@@ -1,5 +1,7 @@
 import pytest
 
+from errors.errors import RepositoryNotInitializedError
+
 
 @pytest.mark.parametrize(
     "method_call",
@@ -19,7 +21,7 @@ import pytest
 def test_all_repository_methods_raise_runtime_error_when_not_initialized(
     temp_repo, method_call
 ):
-    with pytest.raises(RuntimeError) as exc_info:
+    with pytest.raises(RepositoryNotInitializedError) as exc_info:
         method_call(temp_repo)
 
     assert "Repository is not initialized" in str(exc_info.value)
