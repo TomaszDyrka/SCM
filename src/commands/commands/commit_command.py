@@ -6,7 +6,7 @@ from difflib import unified_diff
 from colorama import Style, init
 
 from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
-from errors.errors import RepositoryNotInitializedError
+from errors.errors import RepositoryNotInitializedError, StagingAreaDoesNotExistError
 from models.commit import Commit
 
 from models.tree import Tree
@@ -51,8 +51,7 @@ class CommitCommand(BaseCommand):
         """
         try:
             if not repo.index.exists():
-                CLIOutput.error(messages["error_no_staging_area"])
-                return
+                raise StagingAreaDoesNotExistError("No file has been added yet. Use rvn add and try again.")
 
             is_detached_head = False
             tree_hash = CommitCommand._create_tree_structure(repo)
@@ -79,6 +78,8 @@ class CommitCommand(BaseCommand):
                 repo.update_head_hash(commit_hash)
         except RepositoryNotInitializedError:
             CLIOutput.error(messages["repo_not_initialized"])
+        except StagingAreaDoesNotExistError:
+            CLIOutput.error(messages["error_no_staging_area"])
 
 
     @staticmethod
