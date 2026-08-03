@@ -6,6 +6,7 @@ from colorama import Style, init
 
 from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput
 from models.binary_large_object import BinaryLargeObject
+from models.commit import Commit
 
 from models.tree import Tree
 
@@ -46,8 +47,27 @@ class CommitCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options.
         """
-        print(f"Commited {args.message}")
-        CommitCommand._create_tree_structure(repo)
+        is_detached_head = False
+        tree_hash = CommitCommand._create_tree_structure(repo)
+        parent_hash_list = []
+
+        if repo.read_head().split(" ", 1)[0] == "ref:":
+            branch_name = Path(repo.read_head().split(" ", 1)[1]).name
+            try:
+                parent_hash_list = [repo.read_branch(branch_name)]
+            except FileNotFoundError:
+                pass
+        else:
+            parent_hash_list = [repo.read_head()]
+            is_detached_head = True
+
+        new_commit = Commit(tree_hash, parent_hash_list, "Revan", "0200", "Revan", args.message)
+        commit_hash = repo.write_object(new_commit.serialize())
+
+        if not is_detached_head:
+            repo.update_branch(Path(repo.read_head().split(" ", 1)[1]).name, commit_hash)
+        else:
+            repo.update_head_hash(commit_hash)
 
     @staticmethod
     def _create_tree_structure(repo) -> str:
