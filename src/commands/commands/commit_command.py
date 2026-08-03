@@ -1,12 +1,11 @@
-import os
 from argparse import _SubParsersAction
 from datetime import datetime
 from pathlib import Path
+from difflib import unified_diff
 
 from colorama import Style, init
 
-from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput
-from models.binary_large_object import BinaryLargeObject
+from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
 from models.commit import Commit
 
 from models.tree import Tree
@@ -16,7 +15,8 @@ init(autoreset=True)
 messages = {
     "successful_commit_branch": lambda branch, message: (
         f"Successfully commited to the branch [{DEEP_PURPLE}{branch}{Style.RESET_ALL}] {message}"
-    )
+    ),
+    "error_no_staging_area": f"No file has been added yet. Use {DEEP_RED}rvn add{Style.RESET_ALL} and try again."
 }
 
 
@@ -25,7 +25,7 @@ class CommitCommand(BaseCommand):
 
     @classmethod
     def register_parser(cls, registry: _SubParsersAction) -> None:
-        """Registers the init command parser with available arguments and flags.
+        """Registers the commit command parser with available arguments and flags.
 
         Args:
             registry: Subparser action manager where the command will be registered.
@@ -47,6 +47,10 @@ class CommitCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options.
         """
+        if not repo.index.exists():
+            CLIOutput.error(messages["error_no_staging_area"])
+            return
+
         is_detached_head = False
         tree_hash = CommitCommand._create_tree_structure(repo)
         parent_hash_list = []
