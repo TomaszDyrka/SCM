@@ -15,6 +15,9 @@ IGNORED_DIRS = {
     "__pycache__",
     "node_modules",
     ".pytest_cache",
+    ".idea",
+    ".gitignore",
+    ".ruff_cache",
 }
 
 init(autoreset=True)
