@@ -1,5 +1,6 @@
 import os
 from argparse import _SubParsersAction
+from datetime import datetime
 from pathlib import Path
 
 from colorama import Style, init
@@ -61,7 +62,7 @@ class CommitCommand(BaseCommand):
             parent_hash_list = [repo.read_head()]
             is_detached_head = True
 
-        new_commit = Commit(tree_hash, parent_hash_list, "Revan", "0200", "Revan", args.message)
+        new_commit = Commit(tree_hash, parent_hash_list, "Revan", CommitCommand._get_timestamp(), "Revan", args.message)
         commit_hash = repo.write_object(new_commit.serialize())
 
         if not is_detached_head:
@@ -105,3 +106,10 @@ class CommitCommand(BaseCommand):
 
         # Returning project's hash
         return trees_created[Path(".")]
+
+    @staticmethod
+    def _get_timestamp() -> str:
+        now = datetime.now().astimezone()
+        seconds = int(now.timestamp())
+        tz_offset = now.strftime("%z")
+        return f"{seconds} {tz_offset}"
