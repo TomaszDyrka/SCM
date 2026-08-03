@@ -28,7 +28,7 @@ messages = {
     "not_found": lambda path: (
         f"There's no file or directory of path {DEEP_RED}{path}{Style.RESET_ALL}"
     ),
-    "repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again."
+    "repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
 }
 
 

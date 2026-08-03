@@ -6,6 +6,7 @@ from difflib import unified_diff
 from colorama import Style, init
 
 from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
+from errors.errors import RepositoryNotInitializedError
 from models.commit import Commit
 
 from models.tree import Tree
@@ -16,7 +17,8 @@ messages = {
     "successful_commit_branch": lambda branch, message: (
         f"Successfully commited to the branch [{DEEP_PURPLE}{branch}{Style.RESET_ALL}] {message}"
     ),
-    "error_no_staging_area": f"No file has been added yet. Use {DEEP_RED}rvn add{Style.RESET_ALL} and try again."
+    "error_no_staging_area": f"No file has been added yet. Use {DEEP_RED}rvn add{Style.RESET_ALL} and try again.",
+    "repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
 }
 
 
@@ -47,33 +49,36 @@ class CommitCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options.
         """
-        if not repo.index.exists():
-            CLIOutput.error(messages["error_no_staging_area"])
-            return
+        try:
+            if not repo.index.exists():
+                CLIOutput.error(messages["error_no_staging_area"])
+                return
 
-        is_detached_head = False
-        tree_hash = CommitCommand._create_tree_structure(repo)
-        parent_hash_list = []
-        branch_name = ""
+            is_detached_head = False
+            tree_hash = CommitCommand._create_tree_structure(repo)
+            parent_hash_list = []
+            branch_name = ""
 
-        if repo.read_head().split(" ", 1)[0] == "ref:":
-            branch_name = Path(repo.read_head().split(" ", 1)[1]).name
-            try:
-                parent_hash_list = [repo.read_branch(branch_name)]
-            except FileNotFoundError:
-                pass
-        else:
-            parent_hash_list = [repo.read_head()]
-            is_detached_head = True
+            if repo.read_head().split(" ", 1)[0] == "ref:":
+                branch_name = Path(repo.read_head().split(" ", 1)[1]).name
+                try:
+                    parent_hash_list = [repo.read_branch(branch_name)]
+                except FileNotFoundError:
+                    pass
+            else:
+                parent_hash_list = [repo.read_head()]
+                is_detached_head = True
 
-        new_commit = Commit(tree_hash, parent_hash_list, "Revan", CommitCommand._get_timestamp(), "Revan", args.message)
-        commit_hash = repo.write_object(new_commit.serialize())
+            new_commit = Commit(tree_hash, parent_hash_list, "Revan", CommitCommand._get_timestamp(), "Revan", args.message)
+            commit_hash = repo.write_object(new_commit.serialize())
 
-        if not is_detached_head:
-            repo.update_branch(branch_name, commit_hash)
-            CLIOutput.info(messages["successful_commit_branch"](branch_name, args.message))
-        else:
-            repo.update_head_hash(commit_hash)
+            if not is_detached_head:
+                repo.update_branch(branch_name, commit_hash)
+                CLIOutput.info(messages["successful_commit_branch"](branch_name, args.message))
+            else:
+                repo.update_head_hash(commit_hash)
+        except RepositoryNotInitializedError:
+            CLIOutput.error(messages["repo_not_initialized"])
 
 
     @staticmethod
