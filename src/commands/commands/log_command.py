@@ -11,7 +11,7 @@ from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput, DEEP
 init(autoreset=True)
 
 messages = {
-    "log_header": lambda commit_hash, branch_name: f"Commit {DEEP_RED}{commit_hash}{Style.RESET_ALL}" + f" on branch {DEEP_RED}{branch_name}{Style.RESET_ALL}" if branch_name is not None else "",
+    "log_header": lambda commit_hash: f"Commit {DEEP_RED}{commit_hash}{Style.RESET_ALL}",
     "log_content": lambda author, date, message:
         f"Author: {DEEP_PURPLE}{author}{Style.RESET_ALL}\n"
         f"Commited on {DEEP_PURPLE}{date}{Style.RESET_ALL}\n"
