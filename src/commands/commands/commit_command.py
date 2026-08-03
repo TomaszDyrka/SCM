@@ -43,4 +43,19 @@ class CommitCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options.
         """
-        pass
+        print(f"Commited {args.message}")
+        CommitCommand._create_tree_structure(repo)
+
+    @staticmethod
+    def _create_tree_structure(repo):
+        index_content = repo.read_index()
+
+        catalogs = set()
+        for record in index_content:
+            file_path = Path(record.split(" ")[-1])
+            catalogs.update(file_path.parents)
+
+        sorted_catalogs = sorted(catalogs, key=lambda x: len(x.parts), reverse=True)
+        print(sorted_catalogs)
+
+
