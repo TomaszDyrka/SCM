@@ -111,23 +111,22 @@ class Repository:
         return object_hash
 
     @ensure_initialized
-    def update_branch(self, name: str, last_commit_metadata: str):
+    def update_branch(self, name: str, last_commit_hash: str):
         """Updates or creates a branch reference with a new commit hash.
 
         Args:
             name: Name of the branch to update.
-            last_commit_metadata: Commit metadata used to calculate hash.
+            last_commit_hash: Commit metadata used to calculate hash.
 
         Returns:
             Computed hash of the commit written to the branch.
         """
-        commit_hash = compute_hash(last_commit_metadata.encode())
         file_path = self.refs / "heads" / name
 
         with open(file=file_path, mode="w") as head_file:
-            head_file.write(commit_hash)
+            head_file.write(last_commit_hash)
 
-        return commit_hash
+        return last_commit_hash
 
     @ensure_initialized
     def update_head_path(self, branch_name: str) -> None:
