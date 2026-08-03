@@ -62,7 +62,7 @@ class LogCommand(BaseCommand):
         current_commit = repo.read_object(newest_commit_hash).decode("utf-8")
         while True:
 
-            CLIOutput.info(messages["log_header"](newest_commit_hash, branch_name))
+            CLIOutput.info(messages["log_header"](newest_commit_hash))
             CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(current_commit)))
 
             parent_hash = LogCommand.parse_parent_hash(current_commit)
