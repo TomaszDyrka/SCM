@@ -46,7 +46,7 @@ class CLIOutput:
     @classmethod
     def blank(cls, message: str) -> None:
         if not cls.quiet:
-            print({message})
+            print(message)
 
     @classmethod
     def error(cls, message: str) -> None:

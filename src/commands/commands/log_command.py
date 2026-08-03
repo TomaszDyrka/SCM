@@ -1,15 +1,21 @@
 import os
+import re
 from argparse import _SubParsersAction
+from datetime import datetime
 from pathlib import Path
 
 from colorama import Style, init
 
-from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput
+from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput, DEEP_RED
 
 init(autoreset=True)
 
 messages = {
-
+    "log_header": lambda commit_hash, branch_name: f"Commit {DEEP_RED}{commit_hash}{Style.RESET_ALL}" + f" on branch {DEEP_RED}{branch_name}{Style.RESET_ALL}" if branch_name is not None else "",
+    "log_content": lambda author, date, message:
+        f"Author: {DEEP_PURPLE}{author}{Style.RESET_ALL}\n"
+        f"Commited on {DEEP_PURPLE}{date}{Style.RESET_ALL}\n"
+        f"\n\t{message}\n"
 }
 
 
@@ -54,5 +60,26 @@ class LogCommand(BaseCommand):
             newest_commit_hash = repo.read_head()
 
         current_commit = repo.read_object(newest_commit_hash).decode("utf-8")
-        print(current_commit)
+        CLIOutput.info(messages["log_header"](newest_commit_hash, branch_name))
+        CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(current_commit)))
+
+    @staticmethod
+    def parse_commit_info(text: str) -> tuple[str, str, str]:
+        author_match = re.search(r"^author\s+(.*?)\s+(\d+)\s+([+-]\d{4})$", text, re.MULTILINE)
+
+        author = ""
+        formatted_date = ""
+
+        if author_match:
+            author = author_match.group(1)
+            seconds = int(author_match.group(2))
+
+            dt = datetime.fromtimestamp(seconds)
+            formatted_date = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        parts = text.split("\n\n", 1)
+        message = parts[1].strip() if len(parts) > 1 else ""
+
+        return author, formatted_date, message
+
 
