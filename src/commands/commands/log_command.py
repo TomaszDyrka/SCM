@@ -1,12 +1,11 @@
-import os
 import re
-from argparse import _SubParsersAction, ArgumentError
-from datetime import datetime
+from argparse import _SubParsersAction
+from datetime import datetime, timezone
 from pathlib import Path
 
 from colorama import Style, init
 
-from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput, DEEP_RED
+from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
 from errors.errors import RepositoryNotInitializedError
 
 init(autoreset=True)
@@ -56,7 +55,7 @@ class LogCommand(BaseCommand):
         """
         try:
             limit: int = args.limit
-            ignore_limit = True if limit < 0 else False
+            ignore_limit = limit < 0
 
             if limit <= 0 and not ignore_limit:
                 raise AttributeError()
@@ -110,7 +109,7 @@ class LogCommand(BaseCommand):
             author = author_match.group(1)
             seconds = int(author_match.group(2))
 
-            dt = datetime.fromtimestamp(seconds)
+            dt = datetime.fromtimestamp(seconds, tz=timezone.utc).astimezone()
             formatted_date = dt.strftime("%Y-%m-%d %H:%M:%S")
 
         parts = text.split("\n\n", 1)

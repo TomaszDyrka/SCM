@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from repository.find_root import find_repository_root
 from repository.repository import Repository
 from utils.temp_cli import cli

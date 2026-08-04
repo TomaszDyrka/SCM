@@ -1,15 +1,12 @@
-import os
 from argparse import _SubParsersAction
 from datetime import datetime
 from pathlib import Path
-from difflib import unified_diff
 
 from colorama import Style, init
 
 from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
 from errors.errors import RepositoryNotInitializedError, StagingAreaDoesNotExistError
 from models.commit import Commit
-
 from models.tree import Tree
 
 init(autoreset=True)
