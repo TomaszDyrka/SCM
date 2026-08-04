@@ -18,7 +18,7 @@ messages = {
         f"Commited on {DEEP_PURPLE}{date}{Style.RESET_ALL}\n"
         f"\n\t{message}\n",
     "nothing_to_log": "Nothing to log.",
-"repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
+    "repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
 }
 
 
