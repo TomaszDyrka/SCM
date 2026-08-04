@@ -52,7 +52,9 @@ class CommitCommand(BaseCommand):
         """
         try:
             if not repo.index.exists():
-                raise StagingAreaDoesNotExistError("No file has been added yet. Use rvn add and try again.")
+                raise StagingAreaDoesNotExistError(
+                    "No file has been added yet. Use rvn add and try again."
+                )
 
             is_detached_head = False
             tree_hash = CommitCommand._create_tree_structure(repo)
@@ -69,12 +71,21 @@ class CommitCommand(BaseCommand):
                 parent_hash_list = [repo.read_head()]
                 is_detached_head = True
 
-            new_commit = Commit(tree_hash, parent_hash_list, "Revan", CommitCommand._get_timestamp(), "Revan", args.message)
+            new_commit = Commit(
+                tree_hash,
+                parent_hash_list,
+                "Revan",
+                CommitCommand._get_timestamp(),
+                "Revan",
+                args.message,
+            )
             commit_hash = repo.write_object(new_commit.serialize())
 
             if not is_detached_head:
                 repo.update_branch(branch_name, commit_hash)
-                CLIOutput.info(messages["successful_commit_branch"](branch_name, args.message))
+                CLIOutput.info(
+                    messages["successful_commit_branch"](branch_name, args.message)
+                )
             else:
                 repo.update_head_hash(commit_hash)
         except RepositoryNotInitializedError:

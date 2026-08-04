@@ -128,4 +128,7 @@ class TestLogCommand:
         LogCommand.execute(temp_repo, Namespace(limit=-1))
 
         captured = capsys.readouterr()
-        assert "Repository has not been initialized yet" in captured.out or "Nothing to log" in captured.out
+        assert (
+            "Repository has not been initialized yet" in captured.out
+            or "Nothing to log" in captured.out
+        )

@@ -12,11 +12,14 @@ from errors.errors import RepositoryNotInitializedError
 init(autoreset=True)
 
 messages = {
-    "log_header": lambda commit_hash: f"Commit {DEEP_RED}{commit_hash}{Style.RESET_ALL}",
-    "log_content": lambda author, date, message:
+    "log_header": lambda commit_hash: (
+        f"Commit {DEEP_RED}{commit_hash}{Style.RESET_ALL}"
+    ),
+    "log_content": lambda author, date, message: (
         f"Author: {DEEP_PURPLE}{author}{Style.RESET_ALL}\n"
         f"Commited on {DEEP_PURPLE}{date}{Style.RESET_ALL}\n"
-        f"\n\t{message}\n",
+        f"\n\t{message}\n"
+    ),
     "nothing_to_log": "Nothing to log.",
     "repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
 }
@@ -68,7 +71,6 @@ class LogCommand(BaseCommand):
             current_commit = repo.read_object(current_commit_hash).decode("utf-8")
             commit_list = []
             while True:
-
                 commit_list.append((current_commit_hash, current_commit))
 
                 parent_hash = LogCommand.parse_parent_hash(current_commit)
@@ -86,7 +88,9 @@ class LogCommand(BaseCommand):
 
             for commit_hash, commit in commit_list:
                 CLIOutput.info(messages["log_header"](commit_hash))
-                CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(commit)))
+                CLIOutput.blank(
+                    messages["log_content"](*LogCommand.parse_commit_info(commit))
+                )
 
         except AttributeError:
             CLIOutput.info(messages["nothing_to_log"])
@@ -95,7 +99,9 @@ class LogCommand(BaseCommand):
 
     @staticmethod
     def parse_commit_info(text: str) -> tuple[str, str, str]:
-        author_match = re.search(r"^author\s+(.*?)\s+(\d+)\s+([+-]\d{4})$", text, re.MULTILINE)
+        author_match = re.search(
+            r"^author\s+(.*?)\s+(\d+)\s+([+-]\d{4})$", text, re.MULTILINE
+        )
 
         author = ""
         formatted_date = ""
