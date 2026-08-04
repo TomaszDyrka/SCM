@@ -1,12 +1,13 @@
 import os
 import re
-from argparse import _SubParsersAction
+from argparse import _SubParsersAction, ArgumentError
 from datetime import datetime
 from pathlib import Path
 
 from colorama import Style, init
 
 from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput, DEEP_RED
+from errors.errors import RepositoryNotInitializedError
 
 init(autoreset=True)
 
@@ -15,7 +16,9 @@ messages = {
     "log_content": lambda author, date, message:
         f"Author: {DEEP_PURPLE}{author}{Style.RESET_ALL}\n"
         f"Commited on {DEEP_PURPLE}{date}{Style.RESET_ALL}\n"
-        f"\n\t{message}\n"
+        f"\n\t{message}\n",
+    "nothing_to_log": "Nothing to log.",
+"repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
 }
 
 
@@ -48,34 +51,42 @@ class LogCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options.
         """
-        limit: int = args.limit
-        ignore_limit = True if limit < 0 else False
-        branch_name = None
+        try:
+            limit: int = args.limit
+            ignore_limit = True if limit < 0 else False
 
-        if repo.read_head().split(" ", 1)[0] == "ref:":
-            branch_name = Path(repo.read_head().split(" ", 1)[1]).name
-            newest_commit_hash = repo.read_branch(branch_name)
+            if limit <= 0 and not ignore_limit:
+                raise AttributeError()
 
-        else:
-            newest_commit_hash = repo.read_head()
+            if repo.read_head().split(" ", 1)[0] == "ref:":
+                branch_name = Path(repo.read_head().split(" ", 1)[1]).name
+                current_commit_hash = repo.read_branch(branch_name)
 
-        current_commit = repo.read_object(newest_commit_hash).decode("utf-8")
-        while True:
+            else:
+                current_commit_hash = repo.read_head()
 
-            CLIOutput.info(messages["log_header"](newest_commit_hash))
-            CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(current_commit)))
+            current_commit = repo.read_object(current_commit_hash).decode("utf-8")
+            while True:
 
-            parent_hash = LogCommand.parse_parent_hash(current_commit)
-            if not ignore_limit:
-                limit -= 1
+                CLIOutput.info(messages["log_header"](current_commit_hash))
+                CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(current_commit)))
 
-            if not ignore_limit and limit <= 0:
-                break
+                parent_hash = LogCommand.parse_parent_hash(current_commit)
+                if not ignore_limit:
+                    limit -= 1
 
-            if not parent_hash:
-                break
+                if not ignore_limit and limit <= 0:
+                    break
 
-            current_commit = repo.read_object(parent_hash).decode("utf-8")
+                if not parent_hash:
+                    break
+
+                current_commit = repo.read_object(parent_hash).decode("utf-8")
+                current_commit_hash = parent_hash
+        except AttributeError:
+            CLIOutput.info(messages["nothing_to_log"])
+        except RepositoryNotInitializedError:
+            CLIOutput.error(messages["repo_not_initialized"])
 
     @staticmethod
     def parse_commit_info(text: str) -> tuple[str, str, str]:
