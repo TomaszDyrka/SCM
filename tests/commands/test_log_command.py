@@ -45,6 +45,7 @@ class TestLogCommand:
         AddCommand.execute(temp_repo, Namespace(path=Path("file.txt")))
         CommitCommand.execute(temp_repo, Namespace(message="Second commit"))
 
+        capsys.readouterr()
         LogCommand.execute(temp_repo, Namespace(limit=-1))
 
         captured = capsys.readouterr()
@@ -67,6 +68,7 @@ class TestLogCommand:
         AddCommand.execute(temp_repo, Namespace(path=Path("file.txt")))
         CommitCommand.execute(temp_repo, Namespace(message="Commit 2"))
 
+        capsys.readouterr()
         LogCommand.execute(temp_repo, Namespace(limit=1))
 
         captured = capsys.readouterr()

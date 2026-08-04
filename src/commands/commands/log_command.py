@@ -66,10 +66,10 @@ class LogCommand(BaseCommand):
                 current_commit_hash = repo.read_head()
 
             current_commit = repo.read_object(current_commit_hash).decode("utf-8")
+            commit_list = []
             while True:
 
-                CLIOutput.info(messages["log_header"](current_commit_hash))
-                CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(current_commit)))
+                commit_list.append((current_commit_hash, current_commit))
 
                 parent_hash = LogCommand.parse_parent_hash(current_commit)
                 if not ignore_limit:
@@ -83,6 +83,11 @@ class LogCommand(BaseCommand):
 
                 current_commit = repo.read_object(parent_hash).decode("utf-8")
                 current_commit_hash = parent_hash
+
+            for commit_hash, commit in commit_list:
+                CLIOutput.info(messages["log_header"](commit_hash))
+                CLIOutput.blank(messages["log_content"](*LogCommand.parse_commit_info(commit)))
+
         except AttributeError:
             CLIOutput.info(messages["nothing_to_log"])
         except RepositoryNotInitializedError:
