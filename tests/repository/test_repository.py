@@ -87,16 +87,9 @@ class TestRepository:
         os.chdir(temp_repo_initialized.repository_path.parent)
         name = "master"
 
-        metadata = """
-        commit 228\x00tree 4a5e12b9c30b2c1a4d5e6f7a8b9c0d1e2f3a4b5c
-        parent 1c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b
-        author Jan Kowalski jan@kowalski.pl 1717593600 +0200
-        committer Jan Kowalski jan@kowalski.pl 1717593600 +0200
-        
-        First commit message
-        """
+        last_commit_hash = "1c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b"
 
-        temp_repo_initialized.update_branch(name, metadata)
+        temp_repo_initialized.update_branch(name, last_commit_hash)
         branch_file = temp_repo_initialized.refs / "heads" / name
 
         assert branch_file.is_file()
@@ -104,7 +97,7 @@ class TestRepository:
         with open(branch_file, "r") as f:
             saved_hash = f.read()
 
-        assert saved_hash == compute_hash(metadata.encode())
+        assert saved_hash == last_commit_hash
 
     def test_update_head_path_file_content_is_correct(self, temp_repo_initialized):
         os.chdir(temp_repo_initialized.repository_path.parent)
@@ -153,20 +146,12 @@ class TestRepository:
     def test_read_branch_success_and_failure(self, temp_repo_initialized):
         os.chdir(temp_repo_initialized.repository_path.parent)
         branch_name = "feature-login"
-        commit_metadata = """
-            commit 228\x00tree 4a5e12b9c30b2c1a4d5e6f7a8b9c0d1e2f3a4b5c
-            parent 1c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b
-            author Jan Kowalski jan@kowalski.pl 1717593600 +0200
-            committer Jan Kowalski jan@kowalski.pl 1717593600 +0200
-            
-            First commit message
-        """
+        commit_hash = "last_commit_hash"
 
-        temp_repo_initialized.update_branch(branch_name, commit_metadata)
+        temp_repo_initialized.update_branch(branch_name, commit_hash)
         saved_hash = temp_repo_initialized.read_branch(branch_name)
-        metadata_hash = compute_hash(commit_metadata.encode())
 
-        assert metadata_hash == saved_hash
+        assert commit_hash == saved_hash
 
         missing_branch = "non-existent-branch"
         with pytest.raises(FileNotFoundError) as exc_info:

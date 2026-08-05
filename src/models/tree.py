@@ -32,7 +32,12 @@ class Tree:
         Returns:
             Encoded binary representation of the tree entries.
         """
-        rows = [f"{row['type']} {row['hash']} {row['name']}" for row in self.entries]
+        sorted_entries = sorted(self.entries, key=lambda entry: entry["name"])
+
+        rows = [
+            f"{entry['type']} {entry['hash']} {entry['name']}"
+            for entry in sorted_entries
+        ]
         return "\n".join(rows).encode()
 
     def serialize(self) -> bytes:

@@ -4,6 +4,7 @@ from pathlib import Path
 from colorama import Style, init
 
 from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
+from errors.errors import RepositoryNotInitializedError
 from models.binary_large_object import BinaryLargeObject
 from repository.find_root import find_repository_root
 
@@ -15,6 +16,9 @@ IGNORED_DIRS = {
     "__pycache__",
     "node_modules",
     ".pytest_cache",
+    ".idea",
+    ".gitignore",
+    ".ruff_cache",
 }
 
 init(autoreset=True)
@@ -24,6 +28,7 @@ messages = {
     "not_found": lambda path: (
         f"There's no file or directory of path {DEEP_RED}{path}{Style.RESET_ALL}"
     ),
+    "repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
 }
 
 
@@ -56,17 +61,19 @@ class AddCommand(BaseCommand):
             repo: Repository instance on which the command will be executed.
             args: Parsed command-line arguments containing options
         """
+        try:
+            target_path: Path = args.path
 
-        target_path: Path = args.path
+            if target_path.is_file():
+                AddCommand.add_file(repo, args)
 
-        if target_path.is_file():
-            AddCommand.add_file(repo, args)
+            elif target_path.is_dir():
+                AddCommand.add_directory(repo, args)
 
-        elif target_path.is_dir():
-            AddCommand.add_directory(repo, args)
-
-        else:
-            CLIOutput.error(messages["not_found"](target_path))
+            else:
+                CLIOutput.error(messages["not_found"](target_path))
+        except RepositoryNotInitializedError:
+            CLIOutput.error(messages["repo_not_initialized"])
 
     @staticmethod
     def add_file(repo, args) -> None:
