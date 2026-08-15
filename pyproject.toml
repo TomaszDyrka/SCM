@@ -5,14 +5,18 @@ description = "Revision Engine Vanguard"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "pytest>=9.1.1",
     "pyyaml>=6.0.3",
     "toml>=0.10.2",
-    "ruff>=0.10",
 ]
 
 [project.scripts]
 rvn = "main:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.3",
+]
 
 [tool.pytest.ini_options]
 python_files = ["tests.py", "test_*.py", "*_tests.py"]

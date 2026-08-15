@@ -53,31 +53,31 @@ jobs:
         run: |
           pytest
 
-create-pr:
-    needs: [lint, test]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4  
+  create-pr:
+      needs: [lint, test]
+      runs-on: ubuntu-24.04
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4  
 
-      - name: Create pull request
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_BODY: |
-            Automatic pull request:
+        - name: Create pull request
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            PR_BODY: |
+              Automatic pull request:
 
-            This pull request has been generated **automatically**.
-            
-            ### Steps taken:
-            - [x] Formatting and Linting
-            - [x] Unit tests
+              This pull request has been generated **automatically**.
+              
+              ### Steps taken:
+              - [x] Formatting and Linting
+              - [x] Unit tests
 
-            ---
-            *Please review changes and if everything is top-notch accept PR*
-        run: |
-          gh pr create \
-            --base develop \
-            --head ${{ github.ref_name }} \
-            --title "Pull request: ${{ github.ref_name }}" \
-            --body "$PR_BODY" \
-            || echo "PR already exists or could not be created"
+              ---
+              *Please review changes and if everything is top-notch accept PR*
+          run: |
+            gh pr create \
+              --base develop \
+              --head ${{ github.ref_name }} \
+              --title "Pull request: ${{ github.ref_name }}" \
+              --body "$PR_BODY" \
+              || echo "PR already exists or could not be created"
