@@ -17,7 +17,7 @@ class TestModelCommit:
         commit = create_commit()
         payload_length = len(commit.serialize_payload())
 
-        assert commit.header == f"commit {payload_length}"
+        assert commit.header == f"commit {payload_length}\n"
 
     def test_commit_serialization_format(self, create_commit):
         """tests if serialization produces data in correct format"""

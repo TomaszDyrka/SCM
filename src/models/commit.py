@@ -34,7 +34,7 @@ class Commit:
         Returns:
             Formatted header string.
         """
-        return f"commit {len(self.serialize_payload())}"
+        return f"commit {len(self.serialize_payload())}\n"
 
     def serialize_payload(self) -> bytes:
         """Serializes the commit contents including tree, parents, author, committer, and message.

@@ -19,6 +19,6 @@ def setup_cli() -> BaseParser:
             # them in registry
             if issubclass(obj, BaseCommand) and obj is not BaseCommand:
                 obj.register_parser(parser.subparser_registry)
-                print(f"Registered command: {obj._name}")
+                # print(f"Registered command: {obj._name}")
 
     return parser

@@ -80,3 +80,25 @@ class TestModelTree:
 
         assert serialized.startswith(header_bytes)
         assert serialized == header_bytes + payload
+
+    def test_tree_serialization_determinism_regardless_of_entry_order(
+        self, create_tree
+    ):
+        """tests if entries added in different order produce the exact same serialized payload"""
+
+        entry_a = {
+            "hash": "1111111111111111111111111111111111111111",
+            "type": "blob",
+            "name": "a_file.py",
+        }
+        entry_b = {
+            "hash": "2222222222222222222222222222222222222222",
+            "type": "blob",
+            "name": "b_file.py",
+        }
+
+        tree1 = create_tree(entries=[entry_a, entry_b])
+        tree2 = create_tree(entries=[entry_b, entry_a])
+
+        assert tree1.serialize_payload() == tree2.serialize_payload()
+        assert tree1.serialize() == tree2.serialize()
