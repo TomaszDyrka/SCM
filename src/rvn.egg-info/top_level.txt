@@ -1,6 +1,0 @@
-__init__
-commands
-main
-models
-repository
-utils
