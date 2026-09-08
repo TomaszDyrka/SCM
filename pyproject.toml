@@ -16,6 +16,7 @@ rvn = "main:main"
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-mock>=3.15.1",
     "ruff>=0.16.3",
 ]
 
@@ -29,4 +30,9 @@ markers = [
     "modelBlob: every blob model test",
     "modelCommit: every commit model test",
     "modelTree: every tree model test",
+    "addCommand: tests for rvn add",
+    "initCommand: tests for rvn init",
+    "logCommand: tests for rvn log",
+    "commitCommand: tests for rvn commit",
+    "checkoutCommand: tests for rvn checkout",
 ]

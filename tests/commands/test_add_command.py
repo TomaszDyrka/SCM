@@ -2,10 +2,13 @@ import os
 from argparse import Namespace
 from pathlib import Path
 
+import pytest
+
 from commands.commands.add_command import AddCommand
 from commands.commands.init_command import InitCommand
 
 
+@pytest.mark.addCommand
 class TestAddCommandFile:
     def test_add_single_file_from_root(self, temp_repo):
         repo_root = temp_repo.repository_path.parent

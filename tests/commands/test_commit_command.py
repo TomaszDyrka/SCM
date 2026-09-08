@@ -2,11 +2,14 @@ import os
 from argparse import Namespace
 from pathlib import Path
 
+import pytest
+
 from commands.commands.add_command import AddCommand
 from commands.commands.commit_command import CommitCommand
 from commands.commands.init_command import InitCommand
 
 
+@pytest.mark.commitCommand
 class TestCommitCommand:
     def test_commit_single_file_from_root(self, temp_repo):
         """Tests committing a single staged file from the repository root directory."""
