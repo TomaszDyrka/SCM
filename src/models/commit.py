@@ -58,3 +58,61 @@ class Commit:
             Full binary payload of the serialized commit object.
         """
         return f"{self.header}\x00".encode() + self.serialize_payload()
+        
+    @classmethod
+    def deserialize(cls, data:bytes) -> Commit:
+        """Deserializes the commit object and creates new instance with the obtained data.
+        
+        Args:
+            data: serialized commit in bytes.
+            
+        Returns:
+            Deserialized commit.
+        """
+        _, payload = data.decode().split("\x00")
+        clean_data = payload.split("\n")
+        
+        parent_hashes = []
+        
+        while line := clean_data.pop(0):
+            pieces = line.split()
+            match pieces[0]:
+                case "tree":
+                    # we need to take the second part for the tree
+                    tree = pieces[1]
+                    
+                case "parent":
+                    # similar to the case above:
+                    # we need to split then take the latter part
+                    parent_hashes.append(pieces[1])
+                    
+                case "author":
+                    # for author we need to take everything between
+                    # author and timestamp both ends exclusive
+                    author = " ".join(pieces[1:-1:])
+                    
+                case "committer":
+                    # we take committer and timestamp together, as commiter
+                    # SHOULD (hmmm?) be an email, probs, so one long string
+                    # and two last bundled together
+                    
+                    # as of now committer is just the same as author, so
+                    # I will just copy that
+                    committer = author
+                    #committer = pieces[1]
+                    timestamp = " ".join(pieces[-1::])
+                    
+        message = "\n".join(clean_data)
+        
+        return cls(tree, parent_hashes, author, timestamp, committer, message)
+    
+    def __eq__(self, other: Commit):
+        conditions = [
+            self.tree == other.tree,
+            sorted(self.parent_hashes) == sorted(other.parent_hashes),
+            self.author == other.author,
+            self.timestamp == other.timestamp,
+            self.committer == other.committer,
+            self.message == other.message,
+            ]       
+        return all(conditions)
