@@ -1,5 +1,7 @@
 import pytest
 
+from src.models.tree import Tree
+
 
 @pytest.mark.modelTree
 class TestModelTree:
@@ -102,3 +104,23 @@ class TestModelTree:
 
         assert tree1.serialize_payload() == tree2.serialize_payload()
         assert tree1.serialize() == tree2.serialize()
+    
+    def test_tree_deserialization(self, create_tree):
+        """tests if deserialization commences correctly"""
+        
+        entry_a = {
+            "hash": "1111111111111111111111111111111111111111",
+            "type": "blob",
+            "name": "a_file.py",
+        }
+        entry_b = {
+            "hash": "2222222222222222222222222222222222222222",
+            "type": "blob",
+            "name": "b_file.py",
+        }
+
+        tree = create_tree(entries=[entry_a, entry_b]) 
+        serialized_tree = tree.serialize()
+        deserialized_tree = Tree.deserialize(serialized_tree)
+        
+        assert tree == deserialized_tree
