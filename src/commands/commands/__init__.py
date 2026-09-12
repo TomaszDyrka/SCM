@@ -6,4 +6,3 @@ __all__ = [
     "init_command",
     "log_command",
 ]
-

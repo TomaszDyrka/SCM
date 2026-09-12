@@ -47,22 +47,22 @@ class Tree:
             Full binary payload of the serialized tree object.
         """
         return f"{self.header}\x00".encode() + self.serialize_payload()
-        
+
     @classmethod
-    def deserialize(cls, data:bytes) -> Tree:
+    def deserialize(cls, data: bytes) -> "Tree":
         """Deserializes the tree object and creates new instance with the obtained data.
-        
+
         Args:
             data: serialized tree in bytes.
-            
+
         Returns:
             Deserialized tree.
         """
-        
+
         _, payload = data.decode().split("\x00")
         clean_data = payload.split("\n")
         tree = cls()
-        
+
         # line, after splitting by '\n', is made of 3 strings separated by spaces,
         # so we need to put them back into the function as arguments.
         # using a static structure of payload we can do it by simply getting exact
@@ -71,15 +71,15 @@ class Tree:
         # add_entry recieves arguments in order: hash, type, name
         # and object serializes itself in order: type, hash, name
         # thus correct indices: 1 - 0 - 2
-        
+
         clean_data.append("")
-        while line :=  clean_data.pop(0):
+        while line := clean_data.pop(0):
             entry = line.split()
             tree.add_entry(entry[1], entry[0], " ".join(entry[2::]))
-        
+
         return tree
-    
-    def __eq__(self, other: Tree):
+
+    def __eq__(self, other: "Tree"):
         print(self.serialize())
         print(self.entries, "\n ---- \n ", other.entries)
         return self.entries == other.entries

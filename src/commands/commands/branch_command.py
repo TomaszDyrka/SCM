@@ -19,6 +19,7 @@ messages = {
     "repo_not_initialized": f"Repository has not been initialized yet. Use {DEEP_RED}rvn init{Style.RESET_ALL} and try again.",
 }
 
+
 class BranchCommand(BaseCommand):
     _name = "branch"
 
@@ -53,24 +54,22 @@ class BranchCommand(BaseCommand):
                 # if content is directly a hash
                 else:
                     commit_hash = content[0]
-                
+
             path = repo.refs / "heads" / args.name
-            
+
             if not path.is_file():
                 with open(file=path, mode="w") as head_file:
                     head_file.write(commit_hash)
-                    
+
                 CLIOutput.info(messages["branch_created"](args.name, commit_hash))
                 return
-                
+
             # if branch exists already - Error
             raise BranchAlreadyExistsError(args.name)
-            
+
         except RepositoryNotInitializedError:
             CLIOutput.error(messages["repo_not_initialized"])
         except FileNotFoundError:
             CLIOutput.error(messages["repo_not_initialized"])
         except BranchAlreadyExistsError:
             CLIOutput.error(messages["branch_exists"](args.name))
-            
-        
