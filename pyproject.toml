@@ -35,4 +35,5 @@ markers = [
     "logCommand: tests for rvn log",
     "commitCommand: tests for rvn commit",
     "checkoutCommand: tests for rvn checkout",
+    "branchCommand: tests for rvn checkout",
 ]

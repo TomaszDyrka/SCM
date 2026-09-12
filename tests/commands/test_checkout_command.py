@@ -10,7 +10,7 @@ from models.tree import Tree
 
 
 @pytest.mark.checkoutCommand
-class TestCheckoutCommandFile:
+class TestCheckoutCommand:
     def test_register_parser(self):
         """tests if registration of parser is correct"""
         

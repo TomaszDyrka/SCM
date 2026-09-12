@@ -1,13 +1,11 @@
 from argparse import _SubParsersAction
 from pathlib import Path
 
-from colorama import init
+from colorama import Style, init
 
-from commands.base.base_command import BaseCommand
-from models.commit import Commit
-from models.tree import Tree
-from repository.repository import Repository, get_file_mode
+from commands.base.base_command import DEEP_PURPLE, DEEP_RED, BaseCommand, CLIOutput
 from errors.errors import BranchAlreadyExistsError, RepositoryNotInitializedError
+from repository.repository import Repository
 
 init(autoreset=True)
 
@@ -66,7 +64,7 @@ class BranchCommand(BaseCommand):
                 return
                 
             # if branch exists already - Error
-            raise BranchAlreadyExistsError
+            raise BranchAlreadyExistsError(args.name)
             
         except RepositoryNotInitializedError:
             CLIOutput.error(messages["repo_not_initialized"])
@@ -74,3 +72,5 @@ class BranchCommand(BaseCommand):
             CLIOutput.error(messages["repo_not_initialized"])
         except BranchAlreadyExistsError:
             CLIOutput.error(messages["branch_exists"](args.name))
+            
+        
