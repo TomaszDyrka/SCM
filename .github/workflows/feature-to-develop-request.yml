@@ -25,7 +25,7 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install .
+          pip install -e ".[dev]"
 
       - name: Lint
         run: |
@@ -47,7 +47,7 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install .
+          pip install -e ".[dev]"
 
       - name: Run automated tests
         run: |
@@ -59,19 +59,19 @@ jobs:
       steps:
         - name: Checkout repository
           uses: actions/checkout@v4  
-  
+
         - name: Create pull request
           env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             PR_BODY: |
               Automatic pull request:
-  
+
               This pull request has been generated **automatically**.
               
               ### Steps taken:
               - [x] Formatting and Linting
               - [x] Unit tests
-  
+
               ---
               *Please review changes and if everything is top-notch accept PR*
           run: |

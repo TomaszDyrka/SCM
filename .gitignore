@@ -8,4 +8,5 @@ __pycache__/
 .vscode/
 
 # package files
-rvn.egg-info/
+*.egg
+*.egg-info/

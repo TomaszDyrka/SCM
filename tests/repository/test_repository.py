@@ -39,7 +39,7 @@ class TestRepository:
         assert temp_repo.HEAD.is_file()
 
     def test_hashing_algorithm(self):
-        """tests if hashing algo producing correct outcome"""
+        """tests if hashing algo produces correct outcome"""
 
         # Check if hash has the expected value
         first_hash = compute_hash(b"scm")
@@ -54,6 +54,8 @@ class TestRepository:
     def test_write_object_saves_compressed_file_in_correct_folder(
         self, temp_repo_initialized
     ):
+        """tests if objects are written in correct folder"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
@@ -68,6 +70,8 @@ class TestRepository:
     def test_write_objects_compressed_content_matches_input_after_decompression(
         self, temp_repo_initialized
     ):
+        """tests if objects retain content after decompression"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
@@ -84,6 +88,8 @@ class TestRepository:
     def test_update_branch_structure_and_file_content_are_correct(
         self, temp_repo_initialized
     ):
+        """tests if updating dirs or files causes data loss"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         name = "master"
 
@@ -100,6 +106,8 @@ class TestRepository:
         assert saved_hash == last_commit_hash
 
     def test_update_head_path_file_content_is_correct(self, temp_repo_initialized):
+        """tests if updating HEAD path is working correctly"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         branch_name = "test_branch"
         temp_repo_initialized.update_head_path(branch_name)
@@ -110,6 +118,8 @@ class TestRepository:
         assert saved_path == f"ref: refs/heads/{branch_name}"
 
     def test_update_head_hash_file_content_is_correct(self, temp_repo_initialized):
+        """tests if updating HEAD hash is working correctly"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         commit_hash = "d0ba1fb9ef60b7487f40c42c22b6091327fa24e2"
         temp_repo_initialized.update_head_hash(commit_hash)
@@ -122,6 +132,8 @@ class TestRepository:
     def test_read_object_is_saved_and_loaded_content_the_same(
         self, temp_repo_initialized
     ):
+        """tests if object correctly reads stored data"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         test_content = b"scm test content"
 
@@ -133,6 +145,8 @@ class TestRepository:
     def test_read_object_raises_file_not_found_for_missing_hash(
         self, temp_repo_initialized
     ):
+        """tests if wrong hash raises correct error handling"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         fake_hash = "0000000000000000000000000000000000000000"
 
@@ -144,6 +158,8 @@ class TestRepository:
         )
 
     def test_read_branch_success_and_failure(self, temp_repo_initialized):
+        """tests if branch-reading has proper handling for both it existing or not"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         branch_name = "feature-login"
         commit_hash = "last_commit_hash"
@@ -162,6 +178,8 @@ class TestRepository:
         )
 
     def test_read_head_input_and_saved_values_match(self, temp_repo_initialized):
+        """tests if HEAD matches initial value before update and new value after"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         name = "master"
         temp_repo_initialized.update_head_path(name)
@@ -176,6 +194,8 @@ class TestRepository:
         assert updated_head == commit_hash
 
     def test_add_file_to_index_creates_entry_in_index_file(self, temp_repo_initialized):
+        """tests if adding files to index area creates proper entries"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         test_file = temp_repo_initialized.repository_path.parent / "main.py"
         test_file.write_text("print('hello')")
@@ -193,6 +213,8 @@ class TestRepository:
         assert entries["main.py"].hash == blob_hash
 
     def test_add_file_to_index_updates_existing_entry(self, temp_repo_initialized):
+        """tests if updating existing file in index is possible and results in correct final entry"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         test_file = temp_repo_initialized.repository_path.parent / "main.py"
         test_file.write_text("v1")
@@ -213,12 +235,16 @@ class TestRepository:
     def test_read_index_returns_empty_dict_when_index_file_missing(
         self, temp_repo_initialized
     ):
+        """tests correct behaviour if index doesnt exist"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         entries = temp_repo_initialized.read_index()
 
         assert entries == {}
 
     def test_read_index_parses_multiple_files_correctly(self, temp_repo_initialized):
+        """tests if having multiple files in index isnt problematic and accessing that data works fine"""
+
         os.chdir(temp_repo_initialized.repository_path.parent)
         file_a = temp_repo_initialized.repository_path.parent / "a.txt"
         file_b = temp_repo_initialized.repository_path.parent / "src" / "b.txt"

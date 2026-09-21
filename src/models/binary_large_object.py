@@ -25,3 +25,13 @@ class BinaryLargeObject:
             Serialized binary representation of the blob.
         """
         return f"{self.header}\x00".encode() + self.content
+
+    def deserialize(self) -> "BinaryLargeObject":
+        """Deserializes the blob object and creates new instance with the obtained data.
+
+        Args:
+            data: serialized blob in bytes.
+
+        Returns:
+            Deserialized blob.
+        """

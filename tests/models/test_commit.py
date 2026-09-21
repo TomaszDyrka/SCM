@@ -1,5 +1,7 @@
 import pytest
 
+from src.models.commit import Commit
+
 
 @pytest.mark.modelCommit
 class TestModelCommit:
@@ -70,3 +72,12 @@ class TestModelCommit:
 
         assert serialized.startswith(header_bytes)
         assert serialized == header_bytes + payload
+
+    def test_commit_deserialization(self, create_commit):
+        """tests if deserialization commences correctly"""
+        
+        commit = create_commit()
+        serialized_commit = commit.serialize()
+        deserialized_commit = Commit.deserialize(serialized_commit)
+                
+        assert commit == deserialized_commit
