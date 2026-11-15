@@ -1,0 +1,83 @@
+name: Test and create pull request
+
+on:
+  push:
+    branches:
+      - 'feature/**' 
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip' 
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: |
+          ruff format --check src/
+          ruff check src/
+
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip' 
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run automated tests
+        run: |
+          pytest
+
+  create-pr:
+      needs: [lint, test]
+      runs-on: ubuntu-24.04
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4  
+
+        - name: Create pull request
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            PR_BODY: |
+              Automatic pull request:
+
+              This pull request has been generated **automatically**.
+              
+              ### Steps taken:
+              - [x] Formatting and Linting
+              - [x] Unit tests
+
+              ---
+              *Please review changes and if everything is top-notch accept PR*
+          run: |
+            gh pr create \
+              --base develop \
+              --head ${{ github.ref_name }} \
+              --title "Pull request: ${{ github.ref_name }}" \
+              --body "$PR_BODY" \
+              || echo "PR already exists or could not be created"

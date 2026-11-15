@@ -1,0 +1,62 @@
+import os
+from argparse import _SubParsersAction
+from pathlib import Path
+
+from colorama import Style, init
+
+from commands.base.base_command import DEEP_PURPLE, BaseCommand, CLIOutput
+
+init(autoreset=True)
+
+messages = {
+    "success": lambda path, branch_name: (
+        f"Successfully initialized RVN repository at {DEEP_PURPLE}{path}{Style.RESET_ALL} "
+        f"with {DEEP_PURPLE}{branch_name}{Style.RESET_ALL} as its main branch."
+    )
+}
+
+
+class InitCommand(BaseCommand):
+    _name = "init"
+
+    @classmethod
+    def register_parser(cls, registry: _SubParsersAction) -> None:
+        """Registers the init command parser with available arguments and flags.
+
+        Args:
+            registry: Subparser action manager where the command will be registered.
+        """
+        subparser = registry.add_parser(cls._name)
+        subparser.add_argument(
+            "-p",
+            "--path",
+            type=Path,
+            default=Path.cwd(),
+            help="Path where .rvn directory will be created (current directory by default).",
+        )
+        subparser.add_argument(
+            "-b",
+            "--branch",
+            dest="branch_name",
+            type=str,
+            default="master",
+            help="Name of the initial branch ('master' by default).",
+        )
+
+        subparser.set_defaults(func=cls.execute)
+
+    @staticmethod
+    def execute(repo, args) -> None:
+        """Executes the init command to initialize a new repository.
+
+        Args:
+            repo: Repository instance on which the command will be executed.
+            args: Parsed command-line arguments containing options like path and branch.
+        """
+        target_path: Path = args.path.resolve()
+
+        repo.set_repository_path(target_path)
+        repo.initialize_directories()
+        os.chdir(repo.repository_path.parent)
+        repo.update_head_path(args.branch_name)
+        CLIOutput.info(messages["success"](args.path, args.branch_name))
